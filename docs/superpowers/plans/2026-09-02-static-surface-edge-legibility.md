@@ -181,7 +181,7 @@ git commit -m "docs: refresh legible surface connectivity examples"
 
 - Verify all source, tests, examples, scripts, documentation, and artifacts.
 
-- [ ] **Step 1: Run static gates**
+- [x] **Step 1: Run static gates**
 
 ```bash
 .venv/bin/python -m compileall -q src tests examples scripts
@@ -189,7 +189,7 @@ git commit -m "docs: refresh legible surface connectivity examples"
 git diff --check
 ```
 
-- [ ] **Step 2: Run full CI-equivalent tests**
+- [x] **Step 2: Run full CI-equivalent tests**
 
 ```bash
 MNE_DONTWRITE_HOME=true MPLBACKEND=Agg \
@@ -198,12 +198,15 @@ MPLCONFIGDIR=/private/tmp/pyconnviz-mpl \
   --cov-report=term-missing --cov-fail-under=80
 ```
 
-- [ ] **Step 3: Build and validate distributions**
+- [x] **Step 3: Build and validate distributions**
 
 Build wheel and sdist into a fresh temporary directory and run Twine against
 the exact two output paths. Do not upload.
 
-- [ ] **Step 4: Review local Git state**
+- [x] **Step 4: Review local Git state**
 
 Confirm the worktree is clean, list commits ahead of `origin/main`, and report
 that no push occurred.
+
+Completion note: all files owned by this plan are committed. The separately
+edited `LICENSE` remains intentionally unstaged; no push occurred.
