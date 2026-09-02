@@ -236,19 +236,19 @@ git commit -m "feat: depth cue native Nilearn surface overlays"
   remains included.
 - All six rendering modes remain listed with complete example calls.
 
-- [ ] **Step 1: Write failing README/source-contract tests**
+- [x] **Step 1: Write failing README/source-contract tests**
 
 Assert the Plotly gallery image occurs before the Matplotlib surface image,
 README contains a `## Recommended views` section, and the recommended calls
 occur in Plotly-then-glass order. Assert acceptance and upstream scripts use
 `depth_cue=True` and no explicit static cortex alpha above `0.24`.
 
-- [ ] **Step 2: Verify RED**
+- [x] **Step 2: Verify RED**
 
 Run the packaging and acceptance source-contract tests. Expected: missing
 recommendation section and old ordering/alpha values.
 
-- [ ] **Step 3: Update documentation and examples**
+- [x] **Step 3: Update documentation and examples**
 
 Reorder the gallery and renderer table. Explain that Plotly is the primary
 rotatable anatomical view, glass brain the primary static overview, and fixed
@@ -257,13 +257,13 @@ and all-backend example without changing scientific input. Replace the old
 claim that uniform foreground order represents all edges with the new
 depth-cue limitation.
 
-- [ ] **Step 4: Update artifact-generation calls**
+- [x] **Step 4: Update artifact-generation calls**
 
 Use the new defaults or explicit `cortex_alpha<=0.24`, set `depth_cue=True`,
 and update titles/labels from “publication” to “depth-aware context” where
 appropriate.
 
-- [ ] **Step 5: Verify GREEN and commit**
+- [x] **Step 5: Verify GREEN and commit**
 
 Run packaging, acceptance, and example compilation tests, then commit:
 

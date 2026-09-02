@@ -76,6 +76,7 @@ def test_readme_has_quickstart_gallery_all_backends_and_release_commands() -> No
     for heading in (
         "## Gallery",
         "## Installation",
+        "## Recommended views",
         "## Quickstart",
         "## All rendering modes",
         "## Build and publish",
@@ -111,3 +112,30 @@ def test_readme_has_quickstart_gallery_all_backends_and_release_commands() -> No
         assert f"docs/images/{filename}" in readme
     assert readme.count('width="100%"') == 4
     assert 'width="60%"' in readme
+
+
+def test_readme_recommends_plotly_then_glass_before_fixed_surface_views() -> None:
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+
+    assert readme.index("docs/images/surface-plotly.png") < readme.index(
+        "docs/images/glass-brain.png"
+    )
+    assert readme.index("docs/images/glass-brain.png") < readme.index(
+        "docs/images/surface-matplotlib.png"
+    )
+
+    start = readme.index("## Recommended views")
+    end = readme.index("## Quickstart", start)
+    recommended = readme[start:end]
+    assert recommended.index('engine="plotly"') < recommended.index(
+        'backend="glass"'
+    )
+    assert recommended.index('backend="glass"') < recommended.index(
+        'engine="matplotlib"'
+    )
+    assert "primary interactive anatomical view" in recommended
+    assert "primary static connectivity overview" in recommended
+    assert re.search(
+        r"supplementary fixed-view\s+anatomical context",
+        recommended,
+    )

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import inspect
 import json
+import re
 from pathlib import Path
 
 import numpy as np
@@ -14,6 +15,7 @@ from scripts.generate_acceptance_artifacts import (
     make_full_fsaverage_geometry,
     make_geometry,
 )
+from scripts.upstream_validation import run_surface_case
 
 REQUIRED = (
     "surface_paper.png",
@@ -212,6 +214,40 @@ def test_generator_contract_refreshes_full_fsaverage_with_paper_renderer() -> No
     assert 'engine="matplotlib"' in full_call
     assert 'style="paper"' in full_call
     assert 'views="paper"' in full_call
+
+
+def test_generator_contract_enables_depth_cue_for_static_surface_artifacts() -> None:
+    source = inspect.getsource(generate_artifacts)
+    output_markers = (
+        'output / "surface_paper.png"',
+        'output / "surface_fsaverage_full.png"',
+        'output / "surface_nilearn_native_three_views.png"',
+        'output / "surface_wholebrain.png"',
+        'output / "surface_soft_overlay.png"',
+    )
+
+    for marker in output_markers:
+        marker_index = source.index(marker)
+        call_start = source.rfind("plot_connectome(", 0, marker_index)
+        assert "depth_cue=True" in source[call_start:marker_index], marker
+
+
+def test_upstream_surface_static_calls_are_translucent_and_depth_aware() -> None:
+    source = inspect.getsource(run_surface_case)
+    matplotlib_call = source[
+        source.index("matplotlib_result = plot_connectome(") :
+        source.index("native_result = plot_connectome(")
+    ]
+    native_call = source[
+        source.index("native_result = plot_connectome(") :
+        source.index("interactive_geometry =")
+    ]
+
+    for call in (matplotlib_call, native_call):
+        assert "depth_cue=True" in call
+        matches = re.findall(r"cortex_alpha=(\d+(?:\.\d+)?),", call)
+        assert matches
+        assert max(map(float, matches)) <= 0.24
 
 
 def test_generated_acceptance_set_passes_strict_checker(tmp_path: Path) -> None:

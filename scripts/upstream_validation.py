@@ -1268,8 +1268,9 @@ def run_surface_case(
         style="paper",
         views="paper",
         node_overlay="none",
-        cortex_alpha=0.32,
-        title="MSDL connectivity — fsaverage pial (three views)",
+        cortex_alpha=0.20,
+        depth_cue=True,
+        title="MSDL connectivity — translucent depth-aware pial context",
         figsize=(13.0, 5.0),
         dpi=140,
         rasterize_surface=True,
@@ -1289,8 +1290,9 @@ def run_surface_case(
         symmetric_cmap=None,
         symmetric_cbar="auto",
         inflate=False,
-        cortex_alpha=0.32,
-        title="MSDL connectivity — native Nilearn surface views",
+        cortex_alpha=0.20,
+        depth_cue=True,
+        title="MSDL connectivity — translucent native Nilearn context",
         figsize=(10.0, 12.0),
         dpi=120,
         rasterize_surface=True,
@@ -1317,7 +1319,10 @@ def run_surface_case(
     plt.close(native_result.artist)
     make_labeled_montage(
         (matplotlib_png, native_png),
-        ("PyConnviz paper - 3 views", "PyConnviz + Nilearn native - 6 panels"),
+        (
+            "PyConnviz depth-aware context - 3 views",
+            "PyConnviz + Nilearn translucent context - 6 panels",
+        ),
         comparison_png,
         columns=1,
     )

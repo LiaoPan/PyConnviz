@@ -48,7 +48,6 @@ def main(output_dir: Path) -> None:
 
     output_dir.mkdir(parents=True, exist_ok=True)
     geometry, prepared = make_data()
-    plot_connectome(prepared, geometry, output=output_dir / "surface.png")
     plot_connectome(
         prepared,
         geometry,
@@ -61,6 +60,24 @@ def main(output_dir: Path) -> None:
     )
     plot_connectome(
         prepared, geometry, backend="html", output=output_dir / "connectome.html"
+    )
+    plot_connectome(
+        prepared,
+        geometry,
+        backend="surface",
+        engine="matplotlib",
+        depth_cue=True,
+        output=output_dir / "surface_context.png",
+    )
+    plot_connectome(
+        prepared,
+        geometry,
+        backend="surface",
+        engine="nilearn",
+        views=("lateral", "medial", "dorsal"),
+        hemispheres=("left", "right"),
+        depth_cue=True,
+        output=output_dir / "surface_nilearn_context.png",
     )
     plot_connectome(
         prepared, geometry, backend="circle", output=output_dir / "circle.png"
