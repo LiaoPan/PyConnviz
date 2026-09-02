@@ -129,7 +129,7 @@ def plot_surface_matplotlib(
     resolved_depth_cue = bool(depth_cue)
     visual = get_style(style)
     resolved_cortex_alpha = resolve_cortex_alpha(
-        cortex_alpha, default=visual["cortex_alpha"]
+        cortex_alpha, default=visual["fixed_cortex_alpha"]
     )
     panels = resolve_views(views)
     node_count = len(prepared.node_names)
@@ -218,7 +218,11 @@ def plot_surface_matplotlib(
     edge_colormap = colormaps[edge_cmap_name]
     widths = scale_values(
         np.abs(all_weights),
-        tuple(visual["edge_width_range"] if edge_width_range is None else edge_width_range),
+        tuple(
+            visual["fixed_edge_width_range"]
+            if edge_width_range is None
+            else edge_width_range
+        ),
     )
     edge_width_by_pair = {
         (edge.source, edge.target): float(width)
@@ -288,7 +292,7 @@ def plot_surface_matplotlib(
             line_widths.append(edge_width_by_pair[(edge.source, edge.target)])
         if curves:
             base_edge_alpha = (
-                visual["edge_alpha"] if edge_alpha is None else edge_alpha
+                visual["fixed_edge_alpha"] if edge_alpha is None else edge_alpha
             )
             line_paths, line_colors, resolved_line_widths = depth_cued_line_data(
                 curves,

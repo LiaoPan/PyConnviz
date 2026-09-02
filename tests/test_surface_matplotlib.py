@@ -340,7 +340,7 @@ def test_bilateral_panel_uses_one_polymesh_and_forces_background_colors(
     assert call["bg_map"] is not None
     assert call["threshold"] is None
     assert call["cmap"].name == "pyconnviz-transparent"
-    assert call["alpha"] == pytest.approx(0.24)
+    assert call["alpha"] == pytest.approx(0.08)
     assert call["vmin"] == -1.0
     assert call["vmax"] == 1.0
     plt.close(result.artist)
@@ -371,7 +371,32 @@ def test_soft_style_does_not_create_an_implicit_cortical_overlay(
 
     assert calls[0]["cmap"].name == "pyconnviz-transparent"
     assert calls[0]["bg_on_data"] is False
-    assert calls[0]["alpha"] == pytest.approx(0.20)
+    assert calls[0]["alpha"] == pytest.approx(0.08)
+    plt.close(result.artist)
+
+
+def test_matplotlib_static_defaults_keep_depth_cued_edges_legible() -> None:
+    import matplotlib.pyplot as plt
+
+    result = plot_surface_matplotlib(
+        prepared(),
+        geometry(),
+        views=(ViewSpec("left", "lateral"),),
+        node_overlay="none",
+        colorbar=False,
+        show=False,
+        dpi=60,
+    )
+
+    axis = result.artist.axes[0]
+    edges = next(
+        item for item in axis.collections if isinstance(item, Line3DCollection)
+    )
+    edge_colors = np.asarray(edges.get_colors())
+    assert np.min(edges.get_linewidths()) >= 1.4 - 1e-12
+    assert np.ptp(edge_colors[:, 3]) > 0.0
+    assert np.min(edge_colors[:, 3]) >= (0.95 * 0.70) - 1e-12
+    assert np.max(edge_colors[:, 3]) <= 0.95 + 1e-12
     plt.close(result.artist)
 
 

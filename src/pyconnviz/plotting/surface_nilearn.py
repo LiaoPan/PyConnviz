@@ -379,7 +379,7 @@ def plot_surface_nilearn(
     visual = get_style(style)
     resolved_alpha = resolve_cortex_alpha(
         cortex_alpha,
-        default=visual["cortex_alpha"],
+        default=visual["fixed_cortex_alpha"],
     )
     neutral = stat_map is None
     resolved_stat_map = (
@@ -468,7 +468,7 @@ def plot_surface_nilearn(
     widths = scale_values(
         np.abs(all_weights),
         tuple(
-            visual["edge_width_range"]
+            visual["fixed_edge_width_range"]
             if edge_width_range is None
             else edge_width_range
         ),
@@ -531,7 +531,7 @@ def plot_surface_nilearn(
             line_widths.append(edge_width_by_pair[(edge.source, edge.target)])
         if curves:
             base_edge_alpha = (
-                visual["edge_alpha"] if edge_alpha is None else edge_alpha
+                visual["fixed_edge_alpha"] if edge_alpha is None else edge_alpha
             )
             line_paths, line_colors, resolved_line_widths = depth_cued_line_data(
                 curves,

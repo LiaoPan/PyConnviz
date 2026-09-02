@@ -175,7 +175,7 @@ def test_native_renderer_passes_real_volume_and_montage_options_unchanged(
     assert call["symmetric_cbar"] == "auto"
     assert call["inflate"] is False
     assert call["colorbar"] is True
-    assert call["alpha"] == pytest.approx(0.24)
+    assert call["alpha"] == pytest.approx(0.08)
     assert "output_file" not in call
     assert result.backend == "surface"
     assert result.engine == "nilearn"
@@ -312,6 +312,9 @@ def test_native_renderer_aligns_nodes_and_scopes_edges_per_hemisphere(
         edge_colors = np.asarray(edge_artist.get_colors())
         assert len(edge_colors) > len(result.panel_edges[key])
         assert np.ptp(edge_colors[:, 3]) > 0.0
+        assert np.min(edge_artist.get_linewidths()) >= 1.4 - 1e-12
+        assert np.min(edge_colors[:, 3]) >= (0.95 * 0.70) - 1e-12
+        assert np.max(edge_colors[:, 3]) <= 0.95 + 1e-12
         assert node_artist.get_depthshade() is True
     plt.close(result.artist)
 
