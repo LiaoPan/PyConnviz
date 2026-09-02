@@ -341,7 +341,7 @@ git commit -m "docs: refresh depth-aware surface examples"
 - Produces a clean committed working tree ahead of `origin/main`.
 - Performs no network push or upload.
 
-- [ ] **Step 1: Run static gates**
+- [x] **Step 1: Run static gates**
 
 ```bash
 .venv/bin/python -m compileall -q src tests examples scripts
@@ -349,7 +349,7 @@ git commit -m "docs: refresh depth-aware surface examples"
 git diff --check HEAD~1
 ```
 
-- [ ] **Step 2: Run complete tests and coverage**
+- [x] **Step 2: Run complete tests and coverage**
 
 ```bash
 MNE_DONTWRITE_HOME=true MPLBACKEND=Agg \
@@ -360,12 +360,12 @@ MPLCONFIGDIR=/private/tmp/pyconnviz-mpl \
 
 Expected: all tests pass and total coverage remains at least 80%.
 
-- [ ] **Step 3: Run package build checks**
+- [x] **Step 3: Run package build checks**
 
 Build into a fresh temporary directory with `python -m build`, then run
 `python -m twine check` against the exact new sdist and wheel paths.
 
-- [ ] **Step 4: Review and commit any final in-scope corrections**
+- [x] **Step 4: Review and commit any final in-scope corrections**
 
 Inspect `git status`, `git diff`, and recent commits. Commit only verified
 in-scope corrections. Do not push.

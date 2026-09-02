@@ -114,7 +114,7 @@ def test_plotly_surface_uses_style_and_explicit_cortex_alpha() -> None:
     )
 
     assert default.artist.data[0].type == "mesh3d"
-    assert default.artist.data[0].opacity == pytest.approx(0.35)
+    assert default.artist.data[0].opacity == pytest.approx(0.20)
     assert overridden.artist.data[0].opacity == pytest.approx(0.72)
 
 
