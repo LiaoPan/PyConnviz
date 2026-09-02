@@ -34,6 +34,7 @@ _PREPARE_OPTIONS = {
 _MATPLOTLIB_OPTIONS = {
     "colorbar",
     "cortex_alpha",
+    "depth_cue",
     "dpi",
     "edge_alpha",
     "edge_arc_height",

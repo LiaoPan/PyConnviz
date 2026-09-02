@@ -31,7 +31,8 @@ _STYLES: dict[str, dict[str, Any]] = {
     "paper": {
         "background": "white",
         "cortex_color": (0.82, 0.82, 0.82),
-        "cortex_alpha": 0.40,
+        "cortex_alpha": 0.24,
+        "depth_cue_min_alpha": 0.20,
         "sulc_contrast": 0.55,
         "surface_cmap": "RdBu_r",
         "node_cmap": "viridis",
@@ -47,7 +48,8 @@ _STYLES: dict[str, dict[str, Any]] = {
     "soft": {
         "background": "white",
         "cortex_color": (0.86, 0.86, 0.86),
-        "cortex_alpha": 0.35,
+        "cortex_alpha": 0.20,
+        "depth_cue_min_alpha": 0.15,
         "sulc_contrast": 0.45,
         "surface_cmap": "RdBu_r",
         "node_cmap": "magma",
@@ -63,7 +65,8 @@ _STYLES: dict[str, dict[str, Any]] = {
     "dark": {
         "background": "#111318",
         "cortex_color": (0.72, 0.74, 0.78),
-        "cortex_alpha": 0.55,
+        "cortex_alpha": 0.32,
+        "depth_cue_min_alpha": 0.28,
         "sulc_contrast": 0.65,
         "surface_cmap": "RdBu_r",
         "node_cmap": "plasma",

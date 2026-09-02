@@ -18,6 +18,7 @@ from ..models import ConnectomeGeometry, PlotResult, PreparedConnectome, ViewSpe
 from ..styles import get_style
 from ..surface_overlay import build_surface_overlay, overlay_limits
 from ._surface_common import (
+    depth_cued_line_data,
     edge_color_norm,
     has_visible_surface_values,
     panel_key,
@@ -97,6 +98,7 @@ def plot_surface_matplotlib(
     edge_vmin: float | None = None,
     edge_vmax: float | None = None,
     cortex_alpha: float | None = None,
+    depth_cue: bool = True,
     node_offset_mm: float = 1.5,
     overlay_sigma_mm: float = 12.0,
     overlay_radius_mm: float = 30.0,
@@ -122,6 +124,9 @@ def plot_surface_matplotlib(
         raise ValueError("geometry and prepared connectome must have the same node count")
     if tuple(geometry.node_names) != tuple(prepared.node_names):
         raise ValueError("geometry node_names must match prepared node_names in order")
+    if not isinstance(depth_cue, (bool, np.bool_)):
+        raise TypeError("depth_cue must be a bool")
+    resolved_depth_cue = bool(depth_cue)
     visual = get_style(style)
     resolved_cortex_alpha = resolve_cortex_alpha(
         cortex_alpha, default=visual["cortex_alpha"]
@@ -282,16 +287,32 @@ def plot_surface_matplotlib(
             colors.append(edge_colormap(edge_normalization(edge.weight)))
             line_widths.append(edge_width_by_pair[(edge.source, edge.target)])
         if curves:
-            collection = Line3DCollection(
+            base_edge_alpha = (
+                visual["edge_alpha"] if edge_alpha is None else edge_alpha
+            )
+            line_paths, line_colors, resolved_line_widths = depth_cued_line_data(
                 curves,
-                colors=colors,
-                linewidths=line_widths,
-                alpha=visual["edge_alpha"] if edge_alpha is None else edge_alpha,
+                colors,
+                line_widths,
+                reference_points=display.surface_coordinates,
+                projection=axis.get_proj(),
+                minimum=visual["depth_cue_min_alpha"],
+                alpha=base_edge_alpha,
+                enabled=resolved_depth_cue,
+            )
+            collection = Line3DCollection(
+                line_paths,
+                colors=line_colors,
+                linewidths=resolved_line_widths,
             )
             collection.set_zorder(10)
             axis.add_collection3d(collection)
             if show_arrows and prepared.directed:
-                for curve, color in zip(curves, colors, strict=True):
+                color_offset = 0
+                for curve in curves:
+                    color_count = len(curve) - 1 if resolved_depth_cue else 1
+                    color = line_colors[color_offset + color_count - 1]
+                    color_offset += color_count
                     direction = curve[-1] - curve[-2]
                     arrow = axis.quiver(
                         *curve[-2],
@@ -319,7 +340,7 @@ def plot_surface_matplotlib(
                 norm=node_normalization,
                 edgecolors=visual["node_edgecolor"],
                 linewidths=0.6,
-                depthshade=True,
+                depthshade=resolved_depth_cue,
             )
             node_scatter.set_zorder(12)
         if panel.title:

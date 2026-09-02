@@ -340,7 +340,7 @@ def test_bilateral_panel_uses_one_polymesh_and_forces_background_colors(
     assert call["bg_map"] is not None
     assert call["threshold"] is None
     assert call["cmap"].name == "pyconnviz-transparent"
-    assert call["alpha"] == pytest.approx(0.4)
+    assert call["alpha"] == pytest.approx(0.24)
     assert call["vmin"] == -1.0
     assert call["vmax"] == 1.0
     plt.close(result.artist)
@@ -371,11 +371,11 @@ def test_soft_style_does_not_create_an_implicit_cortical_overlay(
 
     assert calls[0]["cmap"].name == "pyconnviz-transparent"
     assert calls[0]["bg_on_data"] is False
-    assert calls[0]["alpha"] == pytest.approx(0.35)
+    assert calls[0]["alpha"] == pytest.approx(0.20)
     plt.close(result.artist)
 
 
-def test_matplotlib_surface_alpha_and_network_foreground_zorder() -> None:
+def test_matplotlib_surface_uses_translucent_depth_cued_foreground() -> None:
     import matplotlib.pyplot as plt
 
     result = plot_surface_matplotlib(
@@ -404,7 +404,56 @@ def test_matplotlib_surface_alpha_and_network_foreground_zorder() -> None:
     assert surface.get_zorder() == 0
     assert edges.get_zorder() > surface.get_zorder()
     assert nodes.get_zorder() > edges.get_zorder()
+    edge_colors = np.asarray(edges.get_colors())
+    assert len(edge_colors) > len(result.panel_edges["left-lateral"])
+    assert np.ptp(edge_colors[:, 3]) > 0.0
+    assert nodes.get_depthshade() is True
     plt.close(result.artist)
+
+
+def test_matplotlib_depth_cue_can_be_disabled_without_changing_edges() -> None:
+    import matplotlib.pyplot as plt
+
+    network = prepared()
+    result = plot_surface_matplotlib(
+        network,
+        geometry(),
+        views=(ViewSpec("left", "lateral"),),
+        node_overlay="none",
+        depth_cue=False,
+        edge_alpha=0.64,
+        colorbar=False,
+        show=False,
+        dpi=60,
+    )
+
+    axis = result.artist.axes[0]
+    edges = next(
+        item for item in axis.collections if isinstance(item, Line3DCollection)
+    )
+    nodes = next(
+        item for item in axis.collections if isinstance(item, Path3DCollection)
+    )
+    assert result.panel_edges["left-lateral"] == select_panel_edges(
+        network.edges, geometry(), "left"
+    )
+    assert len(edges.get_colors()) == len(result.panel_edges["left-lateral"])
+    np.testing.assert_allclose(np.asarray(edges.get_colors())[:, 3], 0.64)
+    assert nodes.get_depthshade() is False
+    plt.close(result.artist)
+
+
+def test_matplotlib_depth_cue_requires_a_bool() -> None:
+    with pytest.raises(TypeError, match="depth_cue must be a bool"):
+        plot_surface_matplotlib(
+            prepared(),
+            geometry(),
+            views=(ViewSpec("left", "lateral"),),
+            depth_cue=1,  # type: ignore[arg-type]
+            colorbar=False,
+            show=False,
+            dpi=60,
+        )
 
 
 def test_surface_cmap_is_independent_from_node_cmap(

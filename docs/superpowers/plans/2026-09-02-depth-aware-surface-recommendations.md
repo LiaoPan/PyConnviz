@@ -121,7 +121,7 @@ git commit -m "feat: add projected depth cues for surface edges"
 - Every style exposes `depth_cue_min_alpha` and the cortex alpha values from the
   design table.
 
-- [ ] **Step 1: Write failing style and renderer tests**
+- [x] **Step 1: Write failing style and renderer tests**
 
 Assert exact style defaults (`paper=0.24`, `soft=0.20`, `dark=0.32`) and bounded
 `depth_cue_min_alpha`. Replace the uniform-foreground renderer assertion with:
@@ -137,18 +137,18 @@ Add a `depth_cue=False` case asserting one color/path per visible edge,
 uniform alpha, and disabled node depth shading. Assert `panel_edges` is
 identical in both calls.
 
-- [ ] **Step 2: Write the failing dispatcher test**
+- [x] **Step 2: Write the failing dispatcher test**
 
 Call `plot_connectome(..., engine="matplotlib", depth_cue=False)` through a
 capturing renderer and assert the option is forwarded. Passing `depth_cue` to
 Plotly, glass, HTML, or circle must remain a strict unexpected-option error.
 
-- [ ] **Step 3: Verify RED**
+- [x] **Step 3: Verify RED**
 
 Run the named style, API, and Matplotlib tests. Expected failures: old opacity
 values, missing dispatcher option, and uniform edge colors.
 
-- [ ] **Step 4: Implement the Matplotlib behavior**
+- [x] **Step 4: Implement the Matplotlib behavior**
 
 After Nilearn establishes the camera, call `depth_cued_line_data` with
 `axis.get_proj()` and `display.surface_coordinates`. Construct one batched
@@ -156,7 +156,7 @@ After Nilearn establishes the camera, call `depth_cued_line_data` with
 wide alpha override. Set `depthshade=depth_cue` for the node collection.
 Validate `depth_cue` is a real boolean before rendering.
 
-- [ ] **Step 5: Verify GREEN and commit**
+- [x] **Step 5: Verify GREEN and commit**
 
 Run all Matplotlib, style, and public API tests plus Ruff, then commit the six
 files with:
