@@ -422,33 +422,33 @@
   "schema_version": 1,
   "visual_artifacts": {
     "comparison": {
-      "byte_count": 527572,
+      "byte_count": 567173,
       "height": 2033,
       "non_flat": true,
-      "path": "/Users/reallo/Documents/Code/MEG/PyConnviz/artifacts/upstream_validation/comparisons/surface_msdl_fsaverage/surface_comparison.png",
-      "variance": 1390.0942618369077,
+      "path": "artifacts/upstream_validation/comparisons/surface_msdl_fsaverage/surface_comparison.png",
+      "variance": 1485.1464608076583,
       "width": 1813
     },
     "surface_interactive": {
       "byte_count": 5734687,
       "has_html": true,
       "has_payload": true,
-      "path": "/Users/reallo/Documents/Code/MEG/PyConnviz/artifacts/upstream_validation/comparisons/surface_msdl_fsaverage/pyconnviz_surface_interactive.html"
+      "path": "artifacts/upstream_validation/comparisons/surface_msdl_fsaverage/pyconnviz_surface_interactive.html"
     },
     "surface_nilearn_native": {
-      "byte_count": 281577,
+      "byte_count": 294294,
       "height": 1241,
       "non_flat": true,
-      "path": "/Users/reallo/Documents/Code/MEG/PyConnviz/artifacts/upstream_validation/comparisons/surface_msdl_fsaverage/pyconnviz_surface_nilearn_native.png",
-      "variance": 2040.3384899228588,
+      "path": "artifacts/upstream_validation/comparisons/surface_msdl_fsaverage/pyconnviz_surface_nilearn_native.png",
+      "variance": 2083.099552586645,
       "width": 1146
     },
     "surface_paper": {
-      "byte_count": 250378,
+      "byte_count": 269436,
       "height": 640,
       "non_flat": true,
-      "path": "/Users/reallo/Documents/Code/MEG/PyConnviz/artifacts/upstream_validation/comparisons/surface_msdl_fsaverage/pyconnviz_surface_paper.png",
-      "variance": 1152.368698307714,
+      "path": "artifacts/upstream_validation/comparisons/surface_msdl_fsaverage/pyconnviz_surface_paper.png",
+      "variance": 1125.5616343398572,
       "width": 1813
     }
   }

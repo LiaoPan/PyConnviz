@@ -1213,6 +1213,12 @@
       ]
     ]
   },
+  "surface_interactive_static_export": {
+    "renderer": "matplotlib-fallback",
+    "fallback": true,
+    "plotly_error_type": "BrowserFailedError",
+    "same_prepared_instance": true
+  },
   "directed_case": {
     "directed": true,
     "edges": [
