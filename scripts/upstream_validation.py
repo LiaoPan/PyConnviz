@@ -10,7 +10,7 @@ import re
 from base64 import b64decode
 from collections.abc import Mapping, Sequence
 from dataclasses import asdict, dataclass, field
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from html import unescape
 from pathlib import Path
 from typing import Any, Literal
@@ -89,7 +89,11 @@ UPSTREAM_SOURCES = (
 
 
 def _utc_timestamp(value: float | None = None) -> str:
-    moment = datetime.now(UTC) if value is None else datetime.fromtimestamp(value, UTC)
+    moment = (
+        datetime.now(timezone.utc)
+        if value is None
+        else datetime.fromtimestamp(value, timezone.utc)
+    )
     return moment.isoformat(timespec="seconds").replace("+00:00", "Z")
 
 

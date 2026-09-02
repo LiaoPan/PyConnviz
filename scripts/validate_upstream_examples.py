@@ -6,7 +6,7 @@ import argparse
 import json
 import os
 from collections.abc import Sequence
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 import numpy as np
@@ -54,7 +54,7 @@ def _parser() -> argparse.ArgumentParser:
 
 
 def _timestamp() -> str:
-    return datetime.now(UTC).isoformat(timespec="seconds").replace("+00:00", "Z")
+    return datetime.now(timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z")
 
 
 def main(argv: Sequence[str] | None = None) -> int:

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import ast
 import hashlib
 import json
 import subprocess
@@ -37,6 +38,23 @@ from scripts.upstream_validation import (
     validate_artifact,
     write_reports,
 )
+
+
+@pytest.mark.parametrize(
+    "filename",
+    ("validate_upstream_examples.py", "upstream_validation.py"),
+)
+def test_validation_scripts_use_python310_compatible_datetime(filename: str) -> None:
+    source = Path(__file__).resolve().parents[1] / "scripts" / filename
+    tree = ast.parse(source.read_text(encoding="utf-8"), filename=str(source))
+    imported = {
+        alias.name
+        for node in ast.walk(tree)
+        if isinstance(node, ast.ImportFrom) and node.module == "datetime"
+        for alias in node.names
+    }
+
+    assert "UTC" not in imported
 
 
 def test_edge_oracle_uses_unique_undirected_nonzero_pairs_and_absolute_percentile() -> None:
