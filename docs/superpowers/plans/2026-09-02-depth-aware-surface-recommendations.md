@@ -49,7 +49,7 @@ Plotly, pytest, Ruff.
 - Consumes: finite `N x 3` coordinates and the public 4x4 matrix returned by
   `Axes3D.get_proj()`.
 
-- [ ] **Step 1: Write the failing projection tests**
+- [x] **Step 1: Write the failing projection tests**
 
 Add tests that use a simple deterministic 4x4 perspective matrix and assert:
 
@@ -64,7 +64,7 @@ Also test a zero-depth reference range returns ones, and reject invalid point
 shapes, projection shapes, non-finite values, and minimum values outside
 `[0, 1]`.
 
-- [ ] **Step 2: Write the failing line-data tests**
+- [x] **Step 2: Write the failing line-data tests**
 
 Pass two 3-point curves with two base RGBA colors and widths. With
 `enabled=True`, assert that the result has four adjacent line segments,
@@ -72,7 +72,7 @@ repeated widths, preserved RGB channels, and more than one alpha value. With
 `enabled=False`, assert that the two original curves remain two paths and all
 alphas equal the requested base alpha.
 
-- [ ] **Step 3: Verify RED**
+- [x] **Step 3: Verify RED**
 
 Run:
 
@@ -82,16 +82,16 @@ MNE_DONTWRITE_HOME=true MPLBACKEND=Agg \
   -k 'projected_depth or depth_cued_line'
 ```
 
-Expected: collection errors because the two helpers do not yet exist.
+Expected: four failures at the calls because the two helpers do not yet exist.
 
-- [ ] **Step 4: Implement the minimal shared helpers**
+- [x] **Step 4: Implement the minimal shared helpers**
 
 Use homogeneous projection (`homogeneous @ projection.T`) and divide clip-space
 z by w. Normalize against projected reference depth using the same near-to-far
 direction as Matplotlib's depth shading. Split curves only when enabled and
 multiply the base edge alpha by each depth factor.
 
-- [ ] **Step 5: Verify GREEN and commit**
+- [x] **Step 5: Verify GREEN and commit**
 
 Run the focused tests and `ruff check` for the two files, then:
 

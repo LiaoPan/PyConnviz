@@ -8,7 +8,13 @@ from numbers import Real
 from typing import Any, Literal
 
 import numpy as np
-from matplotlib.colors import ListedColormap, Normalize, TwoSlopeNorm, to_rgb
+from matplotlib.colors import (
+    ListedColormap,
+    Normalize,
+    TwoSlopeNorm,
+    to_rgb,
+    to_rgba_array,
+)
 from numpy.typing import NDArray
 
 from ..geometry import offset_node_coordinates
@@ -37,6 +43,132 @@ class SurfaceDisplayCoordinates:
     node_positions: NDArray[np.float64]
     surface_coordinates: NDArray[np.float64]
     brain_center: NDArray[np.float64]
+
+
+def _finite_points_3d(values: Any, *, name: str) -> NDArray[np.float64]:
+    points = np.asarray(values, dtype=np.float64)
+    if points.ndim != 2 or points.shape[1:] != (3,):
+        raise ValueError(f"{name} must have shape (n, 3)")
+    if not np.all(np.isfinite(points)):
+        raise ValueError(f"{name} must contain only finite coordinates")
+    return points
+
+
+def _unit_interval(value: object, *, name: str) -> float:
+    if isinstance(value, (bool, np.bool_)) or not isinstance(value, Real):
+        raise TypeError(f"{name} must be a real number between 0 and 1")
+    resolved = float(value)
+    if not np.isfinite(resolved) or not 0.0 <= resolved <= 1.0:
+        raise ValueError(f"{name} must be finite and between 0 and 1")
+    return resolved
+
+
+def _projected_depths(
+    points: NDArray[np.float64], projection: NDArray[np.float64]
+) -> NDArray[np.float64]:
+    if projection.shape != (4, 4) or not np.all(np.isfinite(projection)):
+        raise ValueError("projection must be a finite 4-by-4 matrix")
+    if not len(points):
+        return np.empty(0, dtype=np.float64)
+    homogeneous = np.column_stack((points, np.ones(len(points), dtype=np.float64)))
+    clip = homogeneous @ projection.T
+    if np.any(np.isclose(clip[:, 3], 0.0)):
+        raise ValueError("projection maps a point to an invalid homogeneous depth")
+    depths = clip[:, 2] / clip[:, 3]
+    if not np.all(np.isfinite(depths)):
+        raise ValueError("projection produced a non-finite depth")
+    return depths
+
+
+def projected_depth_factors(
+    points: Any,
+    reference_points: Any,
+    projection: Any,
+    *,
+    minimum: float,
+) -> NDArray[np.float64]:
+    """Return view-depth opacity factors without changing data encodings."""
+
+    selected = _finite_points_3d(points, name="points")
+    reference = _finite_points_3d(reference_points, name="reference_points")
+    if not len(reference):
+        raise ValueError("reference_points must contain at least one coordinate")
+    matrix = np.asarray(projection, dtype=np.float64)
+    floor = _unit_interval(minimum, name="minimum")
+    depths = _projected_depths(selected, matrix)
+    reference_depths = _projected_depths(reference, matrix)
+    depth_min = float(np.min(reference_depths))
+    depth_range = float(np.ptp(reference_depths))
+    if depth_range <= np.finfo(np.float64).eps:
+        return np.ones(len(selected), dtype=np.float64)
+    normalized = np.clip((depths - depth_min) / depth_range, 0.0, 1.0)
+    return 1.0 - normalized * (1.0 - floor)
+
+
+def depth_cued_line_data(
+    curves: Sequence[Any],
+    colors: Any,
+    widths: Any,
+    *,
+    reference_points: Any,
+    projection: Any,
+    minimum: float,
+    alpha: float,
+    enabled: bool,
+) -> tuple[list[NDArray[np.float64]], NDArray[np.float64], NDArray[np.float64]]:
+    """Prepare batched 3D line paths with optional per-segment depth alpha."""
+
+    if not isinstance(enabled, (bool, np.bool_)):
+        raise TypeError("enabled must be a bool")
+    base_alpha = _unit_interval(alpha, name="alpha")
+    floor = _unit_interval(minimum, name="minimum")
+    resolved_curves = [
+        _finite_points_3d(curve, name=f"curves[{index}]")
+        for index, curve in enumerate(curves)
+    ]
+    if any(len(curve) < 2 for curve in resolved_curves):
+        raise ValueError("each curve must contain at least two points")
+    resolved_colors = to_rgba_array(colors)
+    resolved_widths = np.asarray(widths, dtype=np.float64)
+    expected = len(resolved_curves)
+    if resolved_colors.shape != (expected, 4):
+        raise ValueError("colors must contain one color per curve")
+    if resolved_widths.shape != (expected,):
+        raise ValueError("widths must contain one value per curve")
+    if not np.all(np.isfinite(resolved_widths)) or np.any(resolved_widths < 0.0):
+        raise ValueError("widths must contain finite non-negative values")
+    if not enabled:
+        uniform_colors = np.array(resolved_colors, copy=True)
+        uniform_colors[:, 3] *= base_alpha
+        return resolved_curves, uniform_colors, np.array(resolved_widths, copy=True)
+
+    paths: list[NDArray[np.float64]] = []
+    segment_colors: list[NDArray[np.float64]] = []
+    segment_widths: list[NDArray[np.float64]] = []
+    for curve, color, width in zip(
+        resolved_curves,
+        resolved_colors,
+        resolved_widths,
+        strict=True,
+    ):
+        segments = np.stack((curve[:-1], curve[1:]), axis=1)
+        midpoints = np.mean(segments, axis=1)
+        factors = projected_depth_factors(
+            midpoints,
+            reference_points,
+            projection,
+            minimum=floor,
+        )
+        repeated_colors = np.repeat(color[np.newaxis, :], len(segments), axis=0)
+        repeated_colors[:, 3] *= base_alpha * factors
+        paths.extend(segments)
+        segment_colors.append(repeated_colors)
+        segment_widths.append(np.full(len(segments), width, dtype=np.float64))
+    return (
+        paths,
+        np.concatenate(segment_colors, axis=0),
+        np.concatenate(segment_widths),
+    )
 
 _VIEW_PRESETS: dict[str, tuple[ViewSpec, ...]] = {
     "lateral": (

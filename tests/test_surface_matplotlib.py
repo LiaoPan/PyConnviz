@@ -15,6 +15,7 @@ from mpl_toolkits.mplot3d.art3d import (
 from pyconnviz.connectivity import prepare_connectome
 from pyconnviz.geometry import geometry_from_arrays
 from pyconnviz.models import Edge, HemisphereMesh, PreparedConnectome, ViewSpec
+from pyconnviz.plotting import _surface_common as surface_common
 from pyconnviz.plotting._surface_common import (
     edge_color_norm,
     quadratic_bezier,
@@ -180,6 +181,108 @@ def test_scale_values_handles_empty_and_constant_arrays() -> None:
     scaled = scale_values(np.array([0.0, np.nan, 2.0]), (10, 20))
     assert np.all(np.isfinite(scaled))
     assert np.all((scaled >= 10) & (scaled <= 20))
+
+
+def test_projected_depth_factors_are_bounded_and_near_to_far() -> None:
+    reference = np.array([[0.0, 0.0, 0.0], [0.0, 0.0, 10.0]])
+    points = np.array(
+        [[0.0, 0.0, 0.0], [0.0, 0.0, 5.0], [0.0, 0.0, 10.0]]
+    )
+
+    factors = surface_common.projected_depth_factors(
+        points,
+        reference,
+        np.eye(4),
+        minimum=0.2,
+    )
+
+    np.testing.assert_allclose(factors, [1.0, 0.6, 0.2])
+
+
+def test_projected_depth_factors_handle_flat_depth_and_reject_invalid_inputs() -> None:
+    flat = np.array([[0.0, 0.0, 3.0], [1.0, 0.0, 3.0]])
+    np.testing.assert_array_equal(
+        surface_common.projected_depth_factors(
+            flat,
+            flat,
+            np.eye(4),
+            minimum=0.2,
+        ),
+        np.ones(2),
+    )
+
+    with pytest.raises(ValueError, match="shape"):
+        surface_common.projected_depth_factors(
+            np.zeros((2, 2)), flat, np.eye(4), minimum=0.2
+        )
+    with pytest.raises(ValueError, match="projection"):
+        surface_common.projected_depth_factors(
+            flat, flat, np.eye(3), minimum=0.2
+        )
+    with pytest.raises(ValueError, match="finite"):
+        surface_common.projected_depth_factors(
+            np.array([[0.0, 0.0, np.nan]]), flat, np.eye(4), minimum=0.2
+        )
+    with pytest.raises(ValueError, match="minimum"):
+        surface_common.projected_depth_factors(
+            flat, flat, np.eye(4), minimum=1.1
+        )
+
+
+def test_depth_cued_line_data_segments_curves_and_varies_only_alpha() -> None:
+    curves = (
+        np.array([[0.0, 0.0, 0.0], [0.0, 0.0, 5.0], [0.0, 0.0, 10.0]]),
+        np.array([[1.0, 0.0, 2.0], [1.0, 0.0, 6.0], [1.0, 0.0, 8.0]]),
+    )
+    colors = np.array([[1.0, 0.2, 0.1, 1.0], [0.1, 0.2, 1.0, 1.0]])
+
+    paths, resolved_colors, widths = surface_common.depth_cued_line_data(
+        curves,
+        colors,
+        np.array([1.0, 3.0]),
+        reference_points=np.array([[0.0, 0.0, 0.0], [0.0, 0.0, 10.0]]),
+        projection=np.eye(4),
+        minimum=0.2,
+        alpha=0.8,
+        enabled=True,
+    )
+
+    assert len(paths) == 4
+    assert all(path.shape == (2, 3) for path in paths)
+    np.testing.assert_allclose(
+        resolved_colors[:2, :3], np.repeat(colors[[0], :3], 2, axis=0)
+    )
+    np.testing.assert_allclose(
+        resolved_colors[2:, :3], np.repeat(colors[[1], :3], 2, axis=0)
+    )
+    assert np.ptp(resolved_colors[:, 3]) > 0.0
+    assert np.max(resolved_colors[:, 3]) <= 0.8
+    np.testing.assert_allclose(widths, [1.0, 1.0, 3.0, 3.0])
+
+
+def test_disabled_depth_cue_keeps_one_uniform_path_per_curve() -> None:
+    curves = (
+        np.array([[0.0, 0.0, 0.0], [0.0, 0.0, 5.0], [0.0, 0.0, 10.0]]),
+        np.array([[1.0, 0.0, 2.0], [1.0, 0.0, 6.0], [1.0, 0.0, 8.0]]),
+    )
+    colors = np.array([[1.0, 0.2, 0.1, 1.0], [0.1, 0.2, 1.0, 1.0]])
+
+    paths, resolved_colors, widths = surface_common.depth_cued_line_data(
+        curves,
+        colors,
+        np.array([1.0, 3.0]),
+        reference_points=np.array([[0.0, 0.0, 0.0], [0.0, 0.0, 10.0]]),
+        projection=np.eye(4),
+        minimum=0.2,
+        alpha=0.8,
+        enabled=False,
+    )
+
+    assert len(paths) == 2
+    assert all(path.shape == (3, 3) for path in paths)
+    np.testing.assert_allclose(resolved_colors[:, :3], colors[:, :3])
+    np.testing.assert_allclose(resolved_colors[:, 3], 0.8)
+    np.testing.assert_allclose(widths, [1.0, 3.0])
 
 
 def test_select_panel_edges_handles_all_120_undirected_edges() -> None:
