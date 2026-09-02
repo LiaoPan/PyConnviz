@@ -155,17 +155,32 @@ def test_cortex_alpha_routes_to_plotly_surface(
     assert calls[0][3]["cortex_alpha"] == pytest.approx(0.7)
 
 
-def test_depth_cue_routes_only_to_matplotlib_surface(
+def test_depth_cue_routes_only_to_static_surface_engines(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    calls: list[tuple] = []
+    matplotlib_calls: list[tuple] = []
     monkeypatch.setattr(
-        api, "_load_surface_matplotlib", lambda: fake_backend("surface", calls)
+        api,
+        "_load_surface_matplotlib",
+        lambda: fake_backend("surface", matplotlib_calls),
     )
 
     plot_connectome(prepared(), geometry(), depth_cue=False)
 
-    assert calls[0][3]["depth_cue"] is False
+    assert matplotlib_calls[0][3]["depth_cue"] is False
+    nilearn_calls: list[tuple] = []
+    monkeypatch.setattr(
+        api,
+        "_load_surface_nilearn",
+        lambda: fake_backend("surface-nilearn", nilearn_calls),
+    )
+    plot_connectome(
+        prepared(),
+        geometry(),
+        engine="nilearn",
+        depth_cue=False,
+    )
+    assert nilearn_calls[0][3]["depth_cue"] is False
     with pytest.raises(TypeError, match="depth_cue"):
         plot_connectome(prepared(), geometry(), engine="plotly", depth_cue=False)
     with pytest.raises(TypeError, match="depth_cue"):

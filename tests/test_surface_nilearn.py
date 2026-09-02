@@ -175,6 +175,7 @@ def test_native_renderer_passes_real_volume_and_montage_options_unchanged(
     assert call["symmetric_cbar"] == "auto"
     assert call["inflate"] is False
     assert call["colorbar"] is True
+    assert call["alpha"] == pytest.approx(0.24)
     assert "output_file" not in call
     assert result.backend == "surface"
     assert result.engine == "nilearn"
@@ -308,7 +309,65 @@ def test_native_renderer_aligns_nodes_and_scopes_edges_per_hemisphere(
         assert axis.computed_zorder is False
         assert edge_artist.get_zorder() == 10
         assert node_artist.get_zorder() == 12
+        edge_colors = np.asarray(edge_artist.get_colors())
+        assert len(edge_colors) > len(result.panel_edges[key])
+        assert np.ptp(edge_colors[:, 3]) > 0.0
+        assert node_artist.get_depthshade() is True
     plt.close(result.artist)
+
+
+def test_native_depth_cue_can_be_disabled_without_changing_edges(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import matplotlib.pyplot as plt
+    import nilearn.plotting as nilearn_plotting
+
+    monkeypatch.setattr(
+        nilearn_plotting,
+        "plot_img_on_surf",
+        lambda **_: _fake_native_axes(1, 2),
+    )
+    network = _prepared()
+    result = plot_surface_nilearn(
+        network,
+        _geometry(),
+        views="lateral",
+        depth_cue=False,
+        edge_alpha=0.64,
+        colorbar=False,
+        show=False,
+        dpi=72,
+    )
+
+    for axis, key in zip(
+        result.artist.axes[:2],
+        ("left-lateral", "right-lateral"),
+        strict=True,
+    ):
+        edge_artist = next(
+            item for item in axis.collections if isinstance(item, Line3DCollection)
+        )
+        node_artist = next(
+            item for item in axis.collections if isinstance(item, Path3DCollection)
+        )
+        assert len(edge_artist.get_colors()) == len(result.panel_edges[key])
+        np.testing.assert_allclose(np.asarray(edge_artist.get_colors())[:, 3], 0.64)
+        assert node_artist.get_depthshade() is False
+    assert result.prepared is network
+    plt.close(result.artist)
+
+
+def test_native_depth_cue_requires_a_bool() -> None:
+    with pytest.raises(TypeError, match="depth_cue must be a bool"):
+        plot_surface_nilearn(
+            _prepared(),
+            _geometry(),
+            views="lateral",
+            depth_cue=1,  # type: ignore[arg-type]
+            colorbar=False,
+            show=False,
+            dpi=72,
+        )
 
 
 def test_native_renderer_saves_a_real_nonempty_png(tmp_path: Path) -> None:

@@ -91,6 +91,7 @@ _NILEARN_SURFACE_OPTIONS = {
     "bg_on_data",
     "colorbar",
     "cortex_alpha",
+    "depth_cue",
     "dpi",
     "edge_alpha",
     "edge_arc_height",

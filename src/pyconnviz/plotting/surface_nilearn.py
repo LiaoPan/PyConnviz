@@ -27,6 +27,7 @@ from ..models import (
 )
 from ..styles import get_style
 from ._surface_common import (
+    depth_cued_line_data,
     edge_color_norm,
     panel_key,
     quadratic_bezier,
@@ -326,6 +327,7 @@ def plot_surface_nilearn(
     surface_vmin: float | None = None,
     surface_vmax: float | None = None,
     cortex_alpha: float | None = None,
+    depth_cue: bool = True,
     node_values: Any = None,
     node_color_values: Any = None,
     node_size_values: Any = None,
@@ -364,6 +366,9 @@ def plot_surface_nilearn(
             "surface_values and functional node_overlay modes require the Matplotlib "
             "or Plotly surface engine"
         )
+    if not isinstance(depth_cue, (bool, np.bool_)):
+        raise TypeError("depth_cue must be a bool")
+    resolved_depth_cue = bool(depth_cue)
     resolved_views = resolve_native_views(views)
     resolved_hemispheres = _resolve_hemispheres(hemispheres)
     resolved_mesh = resolve_native_surface_mesh(
@@ -525,18 +530,32 @@ def plot_surface_nilearn(
             colors.append(edge_colormap(edge_normalization(edge.weight)))
             line_widths.append(edge_width_by_pair[(edge.source, edge.target)])
         if curves:
-            edge_collection = Line3DCollection(
+            base_edge_alpha = (
+                visual["edge_alpha"] if edge_alpha is None else edge_alpha
+            )
+            line_paths, line_colors, resolved_line_widths = depth_cued_line_data(
                 curves,
-                colors=colors,
-                linewidths=line_widths,
-                alpha=(
-                    visual["edge_alpha"] if edge_alpha is None else edge_alpha
-                ),
+                colors,
+                line_widths,
+                reference_points=display.surface_coordinates,
+                projection=axis.get_proj(),
+                minimum=visual["depth_cue_min_alpha"],
+                alpha=base_edge_alpha,
+                enabled=resolved_depth_cue,
+            )
+            edge_collection = Line3DCollection(
+                line_paths,
+                colors=line_colors,
+                linewidths=resolved_line_widths,
             )
             edge_collection.set_zorder(10)
             axis.add_collection3d(edge_collection)
             if show_arrows and prepared.directed:
-                for curve, color in zip(curves, colors, strict=True):
+                color_offset = 0
+                for curve in curves:
+                    color_count = len(curve) - 1 if resolved_depth_cue else 1
+                    color = line_colors[color_offset + color_count - 1]
+                    color_offset += color_count
                     direction = curve[-1] - curve[-2]
                     arrow = axis.quiver(
                         *curve[-2],
@@ -564,7 +583,7 @@ def plot_surface_nilearn(
                 norm=node_normalization,
                 edgecolors=visual["node_edgecolor"],
                 linewidths=0.6,
-                depthshade=True,
+                depthshade=resolved_depth_cue,
             )
             node_collection.set_zorder(12)
         axis.set_title(

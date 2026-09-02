@@ -184,30 +184,30 @@ git commit -m "feat: make Matplotlib surfaces depth aware"
   create the cortical panels; PyConnviz only overlays depth-cued network
   artists afterward.
 
-- [ ] **Step 1: Write failing native-renderer tests**
+- [x] **Step 1: Write failing native-renderer tests**
 
 Capture `plot_img_on_surf` and assert the paper style now passes `alpha=0.24`.
 On real test axes, assert depth-cued edge colors contain multiple alpha levels,
 nodes have depth shading enabled, and `depth_cue=False` restores uniform edge
 alpha without changing `panel_edges`.
 
-- [ ] **Step 2: Write the failing native dispatcher test**
+- [x] **Step 2: Write the failing native dispatcher test**
 
 Assert `depth_cue=False` routes to `engine="nilearn"` and is rejected by
 non-static backends.
 
-- [ ] **Step 3: Verify RED**
+- [x] **Step 3: Verify RED**
 
 Run `tests/test_surface_nilearn.py` and the named public API test. Expected:
 missing parameter/routing and uniform line alpha.
 
-- [ ] **Step 4: Implement with the shared line-data helper**
+- [x] **Step 4: Implement with the shared line-data helper**
 
 Use each Nilearn-returned panel axis projection and the matching display mesh
 coordinates. Keep all existing hemisphere edge scopes, colorbars, arrows, and
 output formats unchanged. Apply `depthshade=depth_cue` to nodes.
 
-- [ ] **Step 5: Verify GREEN and commit**
+- [x] **Step 5: Verify GREEN and commit**
 
 Run native, API, and shared surface tests plus Ruff, then commit:
 
