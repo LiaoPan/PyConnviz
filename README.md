@@ -66,11 +66,20 @@ use real MSDL connectivity projected to fsaverage.
 
 PyConnviz requires Python 3.10 or newer.
 
+### Install from PyPI
+
+Install the latest published release from
+[PyPI](https://pypi.org/project/pyconnviz/):
+
 ```bash
-python -m pip install pyconnviz
-python -m pip install "pyconnviz[interactive]"  # Plotly HTML surface
-python -m pip install "pyconnviz[export]"       # Plotly static export via Kaleido
+python -m pip install --upgrade pyconnviz
+python -m pip install --upgrade "pyconnviz[interactive]"
+python -m pip install --upgrade "pyconnviz[interactive,export]"
 ```
+
+The first command installs the core static renderers. Use `interactive` for
+Plotly HTML surfaces; combine `interactive,export` when Plotly static
+PNG/SVG/PDF export through Kaleido is also required.
 
 For a source checkout or release-development environment:
 

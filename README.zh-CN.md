@@ -64,11 +64,19 @@ PyConnviz 不计算功能连接、不进行源定位或统计检验、不替用�
 
 PyConnviz 需要 Python 3.10 或更高版本。
 
+### 从 PyPI 安装
+
+从 [PyPI](https://pypi.org/project/pyconnviz/) 安装最新正式版本：
+
 ```bash
-python -m pip install pyconnviz
-python -m pip install "pyconnviz[interactive]"  # Plotly HTML surface
-python -m pip install "pyconnviz[export]"       # Plotly static export via Kaleido
+python -m pip install --upgrade pyconnviz
+python -m pip install --upgrade "pyconnviz[interactive]"
+python -m pip install --upgrade "pyconnviz[interactive,export]"
 ```
+
+第一条命令安装核心静态渲染器。交互式 Plotly HTML surface 使用
+`interactive`；如还需通过 Kaleido 导出 Plotly 静态 PNG/SVG/PDF，请同时
+安装 `interactive,export`。
 
 从源码检出安装或配置发布开发环境时：
 

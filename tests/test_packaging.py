@@ -3,6 +3,8 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
+import pytest
+
 try:
     import tomllib
 except ModuleNotFoundError:  # pragma: no cover - exercised on Python 3.10 CI
@@ -69,6 +71,29 @@ def test_packaging_metadata_and_manifest_are_release_ready() -> None:
         "recursive-include docs/images *.png",
     )
     assert tuple(manifest.splitlines()) == expected_manifest_lines
+
+
+@pytest.mark.parametrize(
+    ("filename", "heading"),
+    (
+        ("README.md", "### Install from PyPI"),
+        ("README.zh-CN.md", "### 从 PyPI 安装"),
+    ),
+)
+def test_readmes_document_installation_from_pypi(
+    filename: str,
+    heading: str,
+) -> None:
+    readme = (ROOT / filename).read_text(encoding="utf-8")
+
+    assert heading in readme
+    assert "https://pypi.org/project/pyconnviz/" in readme
+    assert "python -m pip install --upgrade pyconnviz" in readme
+    assert 'python -m pip install --upgrade "pyconnviz[interactive]"' in readme
+    assert (
+        'python -m pip install --upgrade "pyconnviz[interactive,export]"'
+        in readme
+    )
 
 
 def test_readme_has_quickstart_gallery_all_backends_and_release_commands() -> None:
