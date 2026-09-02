@@ -44,7 +44,7 @@ instructions remain in place.
 - Both READMEs expose the canonical PyPI URL and the same three commands.
 - English uses `### Install from PyPI`; Chinese uses `### 从 PyPI 安装`.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Add a parameterized assertion over both README paths:
 
@@ -66,7 +66,7 @@ def test_readmes_document_installation_from_pypi(filename: str, heading: str) ->
     )
 ```
 
-- [ ] **Step 2: Verify RED**
+- [x] **Step 2: Verify RED**
 
 Run `.venv/bin/python -m pytest -q tests/test_packaging.py` and confirm the new
 test fails because the subsection and upgrade commands are absent.
@@ -87,13 +87,13 @@ test fails because the subsection and upgrade commands are absent.
   remain unchanged.
 - The new PyPI command block is byte-for-byte identical in both READMEs.
 
-- [ ] **Step 1: Add both localized subsections**
+- [x] **Step 1: Add both localized subsections**
 
 Insert the PyPI link and the exact three-command bash block immediately after
 the Python version sentence in each README. Explain core, interactive, and
 static-export purposes in localized prose.
 
-- [ ] **Step 2: Verify GREEN and bilingual parity**
+- [x] **Step 2: Verify GREEN and bilingual parity**
 
 Run:
 
@@ -103,7 +103,7 @@ Run:
 git diff --check
 ```
 
-- [ ] **Step 3: Commit the README change**
+- [x] **Step 3: Commit the README change**
 
 Stage only both READMEs and `tests/test_packaging.py`, then commit:
 
@@ -111,9 +111,20 @@ Stage only both READMEs and `tests/test_packaging.py`, then commit:
 git commit -m "docs: document installation from PyPI"
 ```
 
-- [ ] **Step 4: Run repository and distribution verification**
+- [x] **Step 4: Run repository and distribution verification**
 
 Run the full test suite with the 80% coverage gate. Build a wheel and sdist in
 a fresh temporary directory, run Twine on both files, and confirm the sdist
 contains both README files. Record that the user's separate `LICENSE` edit
 remains unstaged and no push occurred.
+
+Verification recorded on 2026-09-02:
+
+- `compileall`: passed.
+- Ruff: passed.
+- Full suite: 276 passed; total coverage 90.71% (required: 80%).
+- PEP 517 build: produced the 0.1.0 wheel and sdist.
+- Twine: both distributions passed.
+- Sdist: contains `README.md` and `README.zh-CN.md`.
+- `LICENSE`: remains an unstaged user-owned change.
+- Remote operations: no push performed.
