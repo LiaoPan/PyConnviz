@@ -1,0 +1,6 @@
+include LICENSE
+include README.md
+include pyproject.toml
+include scripts/release.sh
+recursive-include examples *.py
+recursive-include docs/images *.png

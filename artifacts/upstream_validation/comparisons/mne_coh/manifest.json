@@ -1,0 +1,118 @@
+{
+  "case": "mne_coh",
+  "expected_edges": [
+    [
+      0,
+      2,
+      0.10992506187532723
+    ],
+    [
+      1,
+      3,
+      0.10223151416847384
+    ],
+    [
+      0,
+      1,
+      0.0989866181670172
+    ],
+    [
+      2,
+      3,
+      0.09726614903579406
+    ],
+    [
+      1,
+      2,
+      0.08881494012148995
+    ],
+    [
+      0,
+      3,
+      0.05387162138128775
+    ]
+  ],
+  "method": "coh",
+  "pixel_comparison": {
+    "candidate": "/Users/reallo/Documents/Code/MEG/PyConnviz/artifacts/upstream_validation/comparisons/mne_coh/pyconnviz_circle.png",
+    "candidate_size": [
+      2434,
+      2197
+    ],
+    "different_pixel_count": 0,
+    "max_abs_error": 0,
+    "mean_abs_error": 0.0,
+    "pixel_identical": true,
+    "reference": "/Users/reallo/Documents/Code/MEG/PyConnviz/artifacts/upstream_validation/comparisons/mne_coh/mne_native_circle.png",
+    "reference_size": [
+      2434,
+      2197
+    ]
+  },
+  "prepared_directed": false,
+  "pyconnviz_edges": [
+    [
+      0,
+      2,
+      0.10992506187532723
+    ],
+    [
+      1,
+      3,
+      0.10223151416847384
+    ],
+    [
+      0,
+      1,
+      0.0989866181670172
+    ],
+    [
+      2,
+      3,
+      0.09726614903579406
+    ],
+    [
+      1,
+      2,
+      0.08881494012148995
+    ],
+    [
+      0,
+      3,
+      0.05387162138128775
+    ]
+  ],
+  "raw_dense_shape": [
+    4,
+    4,
+    1
+  ],
+  "schema_version": 1,
+  "symmetry_basis": "mne:coh:all-to-all",
+  "visual_artifacts": {
+    "comparison": {
+      "byte_count": 240018,
+      "height": 2273,
+      "non_flat": true,
+      "path": "/Users/reallo/Documents/Code/MEG/PyConnviz/artifacts/upstream_validation/comparisons/mne_coh/circle_comparison.png",
+      "variance": 2031.3097093853905,
+      "width": 4868
+    },
+    "mne_native_circle": {
+      "byte_count": 200619,
+      "height": 2197,
+      "non_flat": true,
+      "path": "/Users/reallo/Documents/Code/MEG/PyConnviz/artifacts/upstream_validation/comparisons/mne_coh/mne_native_circle.png",
+      "variance": 2064.585420787371,
+      "width": 2434
+    },
+    "pyconnviz_circle": {
+      "byte_count": 200619,
+      "height": 2197,
+      "non_flat": true,
+      "path": "/Users/reallo/Documents/Code/MEG/PyConnviz/artifacts/upstream_validation/comparisons/mne_coh/pyconnviz_circle.png",
+      "variance": 2064.585420787371,
+      "width": 2434
+    }
+  }
+}

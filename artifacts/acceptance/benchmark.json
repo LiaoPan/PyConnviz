@@ -1,0 +1,11 @@
+{
+  "nodes": 200,
+  "visible_edges": 120,
+  "vertices_per_hemisphere": 10242,
+  "prepare_seconds": 0.7716344249929534,
+  "static_render_seconds": 1.9322888010065071,
+  "peak_extra_bytes": 43060228,
+  "target_prepare_under_1s": true,
+  "target_render_under_20s": true,
+  "target_peak_under_1gb": true
+}

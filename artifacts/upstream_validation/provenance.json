@@ -1,0 +1,516 @@
+{
+  "cases": {
+    "mne_numeric": {
+      "dense_matrix": [
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0989866181670172,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.10992506187532723,
+          0.08881494012148995,
+          0.0,
+          0.0
+        ],
+        [
+          0.05387162138128775,
+          0.10223151416847384,
+          0.09726614903579406,
+          0.0
+        ]
+      ],
+      "dense_shape": [
+        4,
+        4,
+        1
+      ],
+      "epochs_shape": [
+        8,
+        4,
+        256
+      ],
+      "expected_symmetric_matrix": [
+        [
+          0.0,
+          0.0989866181670172,
+          0.10992506187532723,
+          0.05387162138128775
+        ],
+        [
+          0.0989866181670172,
+          0.0,
+          0.08881494012148995,
+          0.10223151416847384
+        ],
+        [
+          0.10992506187532723,
+          0.08881494012148995,
+          0.0,
+          0.09726614903579406
+        ],
+        [
+          0.05387162138128775,
+          0.10223151416847384,
+          0.09726614903579406,
+          0.0
+        ]
+      ],
+      "frequency_average_hz": [
+        10.5
+      ],
+      "frequency_band_hz": [
+        8.0,
+        13.0
+      ],
+      "method": "coh",
+      "mode": "multitaper",
+      "object_type": "SpectralConnectivity",
+      "raveled_shape": [
+        16,
+        1
+      ],
+      "sfreq_hz": 128.0,
+      "upstream_symmetric_attribute": null,
+      "upstream_symmetric_metadata": null
+    },
+    "mne_visual": {
+      "coh": {
+        "edge_count": 6,
+        "manifest": {
+          "byte_count": 2349,
+          "path": "/Users/reallo/Documents/Code/MEG/PyConnviz/artifacts/upstream_validation/comparisons/mne_coh/manifest.json",
+          "sha256": "932f34e61e67d5aa17c4fc4e324d9ada8d50ac7739e445f3bc501bd69be912ef"
+        },
+        "method": "coh",
+        "object_type": "SpectralConnectivity",
+        "symmetry_basis": "mne:coh:all-to-all",
+        "visual_artifacts": {
+          "comparison": {
+            "byte_count": 240018,
+            "height": 2273,
+            "non_flat": true,
+            "path": "/Users/reallo/Documents/Code/MEG/PyConnviz/artifacts/upstream_validation/comparisons/mne_coh/circle_comparison.png",
+            "variance": 2031.3097093853905,
+            "width": 4868
+          },
+          "mne_native_circle": {
+            "byte_count": 200619,
+            "height": 2197,
+            "non_flat": true,
+            "path": "/Users/reallo/Documents/Code/MEG/PyConnviz/artifacts/upstream_validation/comparisons/mne_coh/mne_native_circle.png",
+            "variance": 2064.585420787371,
+            "width": 2434
+          },
+          "pyconnviz_circle": {
+            "byte_count": 200619,
+            "height": 2197,
+            "non_flat": true,
+            "path": "/Users/reallo/Documents/Code/MEG/PyConnviz/artifacts/upstream_validation/comparisons/mne_coh/pyconnviz_circle.png",
+            "variance": 2064.585420787371,
+            "width": 2434
+          }
+        }
+      },
+      "plv": {
+        "edge_count": 6,
+        "manifest": {
+          "byte_count": 2345,
+          "path": "/Users/reallo/Documents/Code/MEG/PyConnviz/artifacts/upstream_validation/comparisons/mne_plv/manifest.json",
+          "sha256": "a6af47233079a7c872f4cebfd0f466f12b796bb5ba669a3b3471a188c8de2ee5"
+        },
+        "method": "plv",
+        "object_type": "SpectralConnectivity",
+        "symmetry_basis": "mne:plv:all-to-all",
+        "visual_artifacts": {
+          "comparison": {
+            "byte_count": 254849,
+            "height": 2271,
+            "non_flat": true,
+            "path": "/Users/reallo/Documents/Code/MEG/PyConnviz/artifacts/upstream_validation/comparisons/mne_plv/circle_comparison.png",
+            "variance": 2051.2984367745953,
+            "width": 4868
+          },
+          "mne_native_circle": {
+            "byte_count": 212736,
+            "height": 2195,
+            "non_flat": true,
+            "path": "/Users/reallo/Documents/Code/MEG/PyConnviz/artifacts/upstream_validation/comparisons/mne_plv/mne_native_circle.png",
+            "variance": 2086.116028844645,
+            "width": 2434
+          },
+          "pyconnviz_circle": {
+            "byte_count": 212736,
+            "height": 2195,
+            "non_flat": true,
+            "path": "/Users/reallo/Documents/Code/MEG/PyConnviz/artifacts/upstream_validation/comparisons/mne_plv/pyconnviz_circle.png",
+            "variance": 2086.116028844645,
+            "width": 2434
+          }
+        }
+      }
+    },
+    "nilearn_msdl": {
+      "atlas": "MSDL",
+      "atlas_maps": {
+        "byte_count": 20966752,
+        "path": "/Users/reallo/Documents/Code/MEG/PyConnviz/data/upstream_validation/msdl_atlas/MSDL_rois/msdl_rois.nii",
+        "sha256": "b8513d232ba844f6221b254bd819c98c2253272fc85e1f3654e6b703a2938a07"
+      },
+      "confounds": {
+        "byte_count": 64188,
+        "path": "/Users/reallo/Documents/Code/MEG/PyConnviz/data/upstream_validation/development_fmri/development_fmri/sub-pixar123_task-pixar_desc-reducedConfounds_regressors.tsv",
+        "sha256": "02f5cb841ea0a27802a1a2f9714b46404b06dd628cbcb142e9873a9b1ba2b8cb"
+      },
+      "coordinates_shape": [
+        39,
+        3
+      ],
+      "functional_image": {
+        "byte_count": 5642698,
+        "path": "/Users/reallo/Documents/Code/MEG/PyConnviz/data/upstream_validation/development_fmri/development_fmri/sub-pixar123_task-pixar_space-MNI152NLin2009cAsym_desc-preproc_bold.nii.gz",
+        "sha256": "ed9414bb668d80c0fa01c8989f2b559a4c2c44506b747808e291e6fee4b83140"
+      },
+      "labels": [
+        "L Aud",
+        "R Aud",
+        "Striate",
+        "L DMN",
+        "Med DMN",
+        "Front DMN",
+        "R DMN",
+        "Occ post",
+        "Motor",
+        "R DLPFC",
+        "R Front pol",
+        "R Par",
+        "R Post Temp",
+        "Basal",
+        "L Par",
+        "L DLPFC",
+        "L Front pol",
+        "L IPS",
+        "R IPS",
+        "L LOC",
+        "Vis",
+        "R LOC",
+        "D ACC",
+        "V ACC",
+        "R A Ins",
+        "L STS",
+        "R STS",
+        "L TPJ",
+        "Broca",
+        "Sup Front S",
+        "R TPJ",
+        "R Pars Op",
+        "Cereb",
+        "Dors PCC",
+        "L Ins",
+        "Cing",
+        "R Ins",
+        "L Ant IPS",
+        "R Ant IPS"
+      ],
+      "matrix_shape": [
+        39,
+        39
+      ],
+      "nilearn_html_edge_count": 152,
+      "nilearn_html_threshold": 0.30585996806038335,
+      "nilearn_static_edge_count": 148,
+      "nilearn_static_threshold": 0.308867356456569,
+      "numeric_artifacts": {
+        "correlation_matrix": {
+          "byte_count": 12296,
+          "path": "/Users/reallo/Documents/Code/MEG/PyConnviz/artifacts/upstream_validation/nilearn_correlation_matrix.npy",
+          "sha256": "b4acfde65196173232fd8aa2aa19ee20362f050e926c7a3c600bc563aa7de406"
+        },
+        "labels": {
+          "byte_count": 485,
+          "path": "/Users/reallo/Documents/Code/MEG/PyConnviz/artifacts/upstream_validation/nilearn_labels.json",
+          "sha256": "c784d95812a1d2c3bfafae29f029ab19ea0857378b5c6298c2444c85e84ae246"
+        },
+        "mni_coords": {
+          "byte_count": 1064,
+          "path": "/Users/reallo/Documents/Code/MEG/PyConnviz/artifacts/upstream_validation/nilearn_mni_coords.npy",
+          "sha256": "73f31f6e3baf3f5ad3e949d55b8b9663e6cb3d10e53e39aacdec62be596693e8"
+        }
+      },
+      "pyconnviz_edge_count": 148,
+      "scientific_threshold": 0.30885735645656903,
+      "subject_count": 1,
+      "surface_accuracy_claimed": false,
+      "time_series_shape": [
+        168,
+        39
+      ],
+      "visual_artifacts": {
+        "comparison_png": {
+          "byte_count": 193581,
+          "height": 405,
+          "non_flat": true,
+          "path": "/Users/reallo/Documents/Code/MEG/PyConnviz/artifacts/upstream_validation/nilearn_msdl_glass_comparison.png",
+          "variance": 3242.9220280573536,
+          "width": 1900
+        },
+        "nilearn_matched_html": {
+          "byte_count": 2828709,
+          "has_html": true,
+          "has_payload": true,
+          "path": "/Users/reallo/Documents/Code/MEG/PyConnviz/artifacts/upstream_validation/nilearn_matched_connectome.html"
+        },
+        "nilearn_matched_png": {
+          "byte_count": 173721,
+          "height": 350,
+          "non_flat": true,
+          "path": "/Users/reallo/Documents/Code/MEG/PyConnviz/artifacts/upstream_validation/nilearn_matched_connectome.png",
+          "variance": 3379.490220311364,
+          "width": 950
+        },
+        "nilearn_reference_html": {
+          "byte_count": 2828959,
+          "has_html": true,
+          "has_payload": true,
+          "path": "/Users/reallo/Documents/Code/MEG/PyConnviz/artifacts/upstream_validation/nilearn_reference_connectome.html"
+        },
+        "nilearn_reference_png": {
+          "byte_count": 156601,
+          "height": 350,
+          "non_flat": true,
+          "path": "/Users/reallo/Documents/Code/MEG/PyConnviz/artifacts/upstream_validation/nilearn_reference_connectome.png",
+          "variance": 5853.323724104236,
+          "width": 730
+        },
+        "pyconnviz_glass_png": {
+          "byte_count": 173721,
+          "height": 350,
+          "non_flat": true,
+          "path": "/Users/reallo/Documents/Code/MEG/PyConnviz/artifacts/upstream_validation/pyconnviz_nilearn_example_glass.png",
+          "variance": 3379.490220311364,
+          "width": 950
+        },
+        "pyconnviz_html": {
+          "byte_count": 2828709,
+          "has_html": true,
+          "has_payload": true,
+          "path": "/Users/reallo/Documents/Code/MEG/PyConnviz/artifacts/upstream_validation/pyconnviz_nilearn_example.html"
+        }
+      }
+    },
+    "nilearn_power264": {
+      "atlas": "Power-264 coordinates",
+      "edge_count": 70,
+      "estimator": "GraphicalLassoCV(cv=3)",
+      "estimator_convergence_warnings": [
+        "graphical_lasso: did not converge after 100 iteration: dual gap: 7.081e-02"
+      ],
+      "manifest": {
+        "byte_count": 10710,
+        "path": "/Users/reallo/Documents/Code/MEG/PyConnviz/artifacts/upstream_validation/comparisons/nilearn_power264/manifest.json",
+        "sha256": "383743912a783b18b28039892bbf25fe27c03d91aeea6abf431e0a9ecfa2b7be"
+      },
+      "matrix_shape": [
+        264,
+        264
+      ],
+      "nilearn_static_threshold": 1.831361605704379,
+      "numeric_artifacts": {
+        "covariance_matrix": {
+          "byte_count": 557696,
+          "path": "/Users/reallo/Documents/Code/MEG/PyConnviz/artifacts/upstream_validation/comparisons/nilearn_power264/power_covariance_matrix.npy",
+          "sha256": "eaffcf4a631c173b7af8ef6d6a7f8accb5f2392909f445f49e77f717c1b1c79e"
+        },
+        "mni_coords": {
+          "byte_count": 6464,
+          "path": "/Users/reallo/Documents/Code/MEG/PyConnviz/artifacts/upstream_validation/comparisons/nilearn_power264/power_mni_coords.npy",
+          "sha256": "a5c1de09d795a1d6ddb38a1629914b0a6c6ed28241c7d3cc57c7a223ef53bb3f"
+        },
+        "time_series": {
+          "byte_count": 354944,
+          "path": "/Users/reallo/Documents/Code/MEG/PyConnviz/artifacts/upstream_validation/comparisons/nilearn_power264/power_time_series.npy",
+          "sha256": "700863a62260a94f6593d449a6d7470fea32d0a535d58b013f4a54c7096bafdf"
+        }
+      },
+      "resolved_threshold": 1.8313516057043788,
+      "subject_count": 1,
+      "time_series_shape": [
+        168,
+        264
+      ],
+      "visual_artifacts": {
+        "comparison": {
+          "byte_count": 213474,
+          "height": 405,
+          "non_flat": true,
+          "path": "/Users/reallo/Documents/Code/MEG/PyConnviz/artifacts/upstream_validation/comparisons/nilearn_power264/glass_comparison.png",
+          "variance": 4490.473282741451,
+          "width": 1900
+        },
+        "nilearn_native_default": {
+          "byte_count": 174043,
+          "height": 350,
+          "non_flat": true,
+          "path": "/Users/reallo/Documents/Code/MEG/PyConnviz/artifacts/upstream_validation/comparisons/nilearn_power264/nilearn_native_default_glass.png",
+          "variance": 4441.790910505472,
+          "width": 730
+        },
+        "nilearn_native_matched": {
+          "byte_count": 190831,
+          "height": 350,
+          "non_flat": true,
+          "path": "/Users/reallo/Documents/Code/MEG/PyConnviz/artifacts/upstream_validation/comparisons/nilearn_power264/nilearn_native_matched_glass.png",
+          "variance": 4838.673097991635,
+          "width": 950
+        },
+        "pyconnviz_glass": {
+          "byte_count": 190831,
+          "height": 350,
+          "non_flat": true,
+          "path": "/Users/reallo/Documents/Code/MEG/PyConnviz/artifacts/upstream_validation/comparisons/nilearn_power264/pyconnviz_glass.png",
+          "variance": 4838.673097991635,
+          "width": 950
+        },
+        "pyconnviz_html": {
+          "byte_count": 2832366,
+          "has_html": true,
+          "has_payload": true,
+          "path": "/Users/reallo/Documents/Code/MEG/PyConnviz/artifacts/upstream_validation/comparisons/nilearn_power264/pyconnviz_connectome.html"
+        }
+      }
+    },
+    "surface_msdl_fsaverage": {
+      "edge_count": 40,
+      "excluded_nodes": [
+        {
+          "distance_mm": 22.87853913191948,
+          "hemisphere": "right",
+          "included": false,
+          "input_index": 32,
+          "label": "Cereb",
+          "nearest_vertex": 90614
+        }
+      ],
+      "included_node_count": 38,
+      "input_atlas": "MSDL",
+      "input_node_count": 39,
+      "manifest": {
+        "byte_count": 6348,
+        "path": "/Users/reallo/Documents/Code/MEG/PyConnviz/artifacts/upstream_validation/comparisons/surface_msdl_fsaverage/manifest.json",
+        "sha256": "f8b344da746bdf60742596248be163023d03c93753c50e9032a391f228f57cab"
+      },
+      "projection": "same-hemisphere nearest fsaverage pial vertex in MNI space",
+      "projection_manifest": {
+        "byte_count": 6646,
+        "path": "/Users/reallo/Documents/Code/MEG/PyConnviz/artifacts/upstream_validation/comparisons/surface_msdl_fsaverage/projection_manifest.json",
+        "sha256": "ef6c1dff70c1434b174a63c9d2a3cea4c48c4c5781ba2de3a59d716d33841f30"
+      },
+      "projection_scope": "visualization, not individual registration truth",
+      "surface_subject_dir": "/Users/reallo/Documents/Code/MEG/PyConnviz/data/fsaverage",
+      "visual_artifacts": {
+        "comparison": {
+          "byte_count": 527572,
+          "height": 2033,
+          "non_flat": true,
+          "path": "/Users/reallo/Documents/Code/MEG/PyConnviz/artifacts/upstream_validation/comparisons/surface_msdl_fsaverage/surface_comparison.png",
+          "variance": 1390.0942618369077,
+          "width": 1813
+        },
+        "surface_interactive": {
+          "byte_count": 5734687,
+          "has_html": true,
+          "has_payload": true,
+          "path": "/Users/reallo/Documents/Code/MEG/PyConnviz/artifacts/upstream_validation/comparisons/surface_msdl_fsaverage/pyconnviz_surface_interactive.html"
+        },
+        "surface_nilearn_native": {
+          "byte_count": 281577,
+          "height": 1241,
+          "non_flat": true,
+          "path": "/Users/reallo/Documents/Code/MEG/PyConnviz/artifacts/upstream_validation/comparisons/surface_msdl_fsaverage/pyconnviz_surface_nilearn_native.png",
+          "variance": 2040.3384899228588,
+          "width": 1146
+        },
+        "surface_paper": {
+          "byte_count": 250378,
+          "height": 640,
+          "non_flat": true,
+          "path": "/Users/reallo/Documents/Code/MEG/PyConnviz/artifacts/upstream_validation/comparisons/surface_msdl_fsaverage/pyconnviz_surface_paper.png",
+          "variance": 1152.368698307714,
+          "width": 1813
+        }
+      }
+    }
+  },
+  "generated_at_utc": "2026-09-01T12:01:17Z",
+  "options": {
+    "data_dir": "/Users/reallo/Documents/Code/MEG/PyConnviz/data/upstream_validation",
+    "fsaverage_dir": "/Users/reallo/Documents/Code/MEG/PyConnviz/data/fsaverage",
+    "outdir": "/Users/reallo/Documents/Code/MEG/PyConnviz/artifacts/upstream_validation",
+    "skip_download": true,
+    "strict": true
+  },
+  "packages": {
+    "matplotlib": "3.11.1",
+    "mne": "1.12.1",
+    "mne-connectivity": "0.9.0",
+    "nilearn": "0.14.0",
+    "numpy": "2.5.2",
+    "pyconnviz": "0.1.0",
+    "python": "3.13.9"
+  },
+  "scope": {
+    "product_code_modified": true,
+    "surface_accuracy_claimed": false,
+    "surface_registration_truth_claimed": false,
+    "surface_visualization_audited": true
+  },
+  "upstream_sources": [
+    {
+      "byte_count": 3637,
+      "filename": "nilearn_plot_probabilistic_atlas_extraction.py",
+      "package": "nilearn",
+      "retrieved_at_utc": "2026-09-01T11:47:15Z",
+      "sha256": "9093688dab31c79f1e65de75e7a45c7506766f1ff4ac57dbaf152b79443f3d78",
+      "url": "https://nilearn.github.io/stable/_downloads/c4ffee04091cacf1483ed5d324ce9c8e/plot_probabilistic_atlas_extraction.py"
+    },
+    {
+      "byte_count": 11882,
+      "filename": "nilearn_plot_sphere_based_connectome.py",
+      "package": "nilearn",
+      "retrieved_at_utc": "2026-09-01T11:47:16Z",
+      "sha256": "46ace49488c1c185f1a7a6d1a065d9662dc2935251de8bc85486ab59ebdde7eb",
+      "url": "https://nilearn.github.io/stable/_downloads/cb064f9ac4369c8f91e970b8f1ae7965/plot_sphere_based_connectome.py"
+    },
+    {
+      "byte_count": 4380,
+      "filename": "mne_connectivity_connectivity_classes.py",
+      "package": "mne-connectivity",
+      "retrieved_at_utc": "2026-09-01T11:47:16Z",
+      "sha256": "f1e94a1a07ff17ac1bf00072aa020a53c87b902eec30a1040b9824a1e2b858bd",
+      "url": "https://mne.tools/mne-connectivity/stable/_downloads/980054063d6073a3d7942ac239432571/connectivity_classes.py"
+    },
+    {
+      "byte_count": 20543,
+      "filename": "mne_connectivity_compare_coherency_methods.py",
+      "package": "mne-connectivity",
+      "retrieved_at_utc": "2026-09-01T11:47:17Z",
+      "sha256": "2776ff3605bf202112593388bad64d1b5fdf562be478d982e136d1f870cb813f",
+      "url": "https://mne.tools/mne-connectivity/stable/_downloads/584a0ffc2ce7de5433ac678cbf086b83/compare_coherency_methods.py"
+    },
+    {
+      "byte_count": 2228,
+      "filename": "mne_connectivity_sensor_connectivity.py",
+      "package": "mne-connectivity",
+      "retrieved_at_utc": "2026-09-01T11:47:18Z",
+      "sha256": "f74f4d86c01acc4659d827524d9d6fc8718dedc820f1439d62b3b084b9afe3ee",
+      "url": "https://mne.tools/mne-connectivity/stable/_downloads/c97704849885b49e703ad1a2fa96a3dd/sensor_connectivity.py"
+    }
+  ]
+}

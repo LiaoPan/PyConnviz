@@ -1,0 +1,46 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.10", "3.13"]
+        extras: ["base", "interactive"]
+    env:
+      MPLBACKEND: Agg
+      MNE_DONTWRITE_HOME: "true"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Install base development environment
+        if: matrix.extras == 'base'
+        run: python -m pip install -e ".[dev]"
+      - name: Install interactive development environment
+        if: matrix.extras == 'interactive'
+        run: python -m pip install -e ".[dev,interactive,export]"
+      - run: python -m compileall src tests examples scripts
+      - run: ruff check src tests examples scripts
+      - name: Base tests
+        if: matrix.extras == 'base'
+        run: pytest -q --ignore=tests/test_surface_plotly.py --ignore=tests/test_acceptance_scripts.py
+      - name: Full tests and coverage
+        if: matrix.extras == 'interactive'
+        run: pytest -q --cov=pyconnviz --cov-report=term-missing --cov-fail-under=80
+      - name: Generate and validate acceptance artifacts
+        if: matrix.extras == 'interactive' && matrix.python == '3.13'
+        run: |
+          python scripts/generate_acceptance_artifacts.py --outdir artifacts/acceptance
+          python scripts/check_acceptance_artifacts.py artifacts/acceptance
+      - uses: actions/upload-artifact@v4
+        if: matrix.extras == 'interactive' && matrix.python == '3.13'
+        with:
+          name: pyconnviz-acceptance
+          path: artifacts/acceptance

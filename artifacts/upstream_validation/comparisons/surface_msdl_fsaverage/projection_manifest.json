@@ -1,0 +1,314 @@
+[
+  {
+    "distance_mm": 3.812983812188681,
+    "hemisphere": "left",
+    "included": true,
+    "input_index": 0,
+    "label": "L Aud",
+    "nearest_vertex": 129369
+  },
+  {
+    "distance_mm": 3.2974748673110135,
+    "hemisphere": "right",
+    "included": true,
+    "input_index": 1,
+    "label": "R Aud",
+    "nearest_vertex": 133877
+  },
+  {
+    "distance_mm": 3.838209414571276,
+    "hemisphere": "right",
+    "included": true,
+    "input_index": 2,
+    "label": "Striate",
+    "nearest_vertex": 101061
+  },
+  {
+    "distance_mm": 3.393712597875409,
+    "hemisphere": "left",
+    "included": true,
+    "input_index": 3,
+    "label": "L DMN",
+    "nearest_vertex": 131789
+  },
+  {
+    "distance_mm": 7.312528452270539,
+    "hemisphere": "left",
+    "included": true,
+    "input_index": 4,
+    "label": "Med DMN",
+    "nearest_vertex": 126864
+  },
+  {
+    "distance_mm": 9.497894247794829,
+    "hemisphere": "left",
+    "included": true,
+    "input_index": 5,
+    "label": "Front DMN",
+    "nearest_vertex": 27021
+  },
+  {
+    "distance_mm": 3.388726923431282,
+    "hemisphere": "right",
+    "included": true,
+    "input_index": 6,
+    "label": "R DMN",
+    "nearest_vertex": 112431
+  },
+  {
+    "distance_mm": 8.335043393456367,
+    "hemisphere": "right",
+    "included": true,
+    "input_index": 7,
+    "label": "Occ post",
+    "nearest_vertex": 48169
+  },
+  {
+    "distance_mm": 4.300961952221681,
+    "hemisphere": "left",
+    "included": true,
+    "input_index": 8,
+    "label": "Motor",
+    "nearest_vertex": 151847
+  },
+  {
+    "distance_mm": 0.4340619819521064,
+    "hemisphere": "right",
+    "included": true,
+    "input_index": 9,
+    "label": "R DLPFC",
+    "nearest_vertex": 42006
+  },
+  {
+    "distance_mm": 2.9355931945488467,
+    "hemisphere": "right",
+    "included": true,
+    "input_index": 10,
+    "label": "R Front pol",
+    "nearest_vertex": 25808
+  },
+  {
+    "distance_mm": 0.1716231701044797,
+    "hemisphere": "right",
+    "included": true,
+    "input_index": 11,
+    "label": "R Par",
+    "nearest_vertex": 132106
+  },
+  {
+    "distance_mm": 0.41748869234505387,
+    "hemisphere": "right",
+    "included": true,
+    "input_index": 12,
+    "label": "R Post Temp",
+    "nearest_vertex": 122958
+  },
+  {
+    "distance_mm": 0.5008729170439172,
+    "hemisphere": "left",
+    "included": true,
+    "input_index": 13,
+    "label": "Basal",
+    "nearest_vertex": 88623
+  },
+  {
+    "distance_mm": 2.6351225002545657,
+    "hemisphere": "left",
+    "included": true,
+    "input_index": 14,
+    "label": "L Par",
+    "nearest_vertex": 18420
+  },
+  {
+    "distance_mm": 0.25395162111614394,
+    "hemisphere": "left",
+    "included": true,
+    "input_index": 15,
+    "label": "L DLPFC",
+    "nearest_vertex": 72040
+  },
+  {
+    "distance_mm": 2.52271507615679,
+    "hemisphere": "left",
+    "included": true,
+    "input_index": 16,
+    "label": "L Front pol",
+    "nearest_vertex": 106448
+  },
+  {
+    "distance_mm": 1.8719819111489073,
+    "hemisphere": "left",
+    "included": true,
+    "input_index": 17,
+    "label": "L IPS",
+    "nearest_vertex": 1681
+  },
+  {
+    "distance_mm": 1.3297592397373745,
+    "hemisphere": "right",
+    "included": true,
+    "input_index": 18,
+    "label": "R IPS",
+    "nearest_vertex": 38824
+  },
+  {
+    "distance_mm": 1.9433522874979654,
+    "hemisphere": "left",
+    "included": true,
+    "input_index": 19,
+    "label": "L LOC",
+    "nearest_vertex": 157937
+  },
+  {
+    "distance_mm": 4.74199184051605,
+    "hemisphere": "left",
+    "included": true,
+    "input_index": 20,
+    "label": "Vis",
+    "nearest_vertex": 25500
+  },
+  {
+    "distance_mm": 0.8958871632739184,
+    "hemisphere": "right",
+    "included": true,
+    "input_index": 21,
+    "label": "R LOC",
+    "nearest_vertex": 87831
+  },
+  {
+    "distance_mm": 4.290389095044481,
+    "hemisphere": "left",
+    "included": true,
+    "input_index": 22,
+    "label": "D ACC",
+    "nearest_vertex": 24584
+  },
+  {
+    "distance_mm": 6.14055761132499,
+    "hemisphere": "left",
+    "included": true,
+    "input_index": 23,
+    "label": "V ACC",
+    "nearest_vertex": 109945
+  },
+  {
+    "distance_mm": 5.135723539906614,
+    "hemisphere": "right",
+    "included": true,
+    "input_index": 24,
+    "label": "R A Ins",
+    "nearest_vertex": 116270
+  },
+  {
+    "distance_mm": 1.5545271744206828,
+    "hemisphere": "left",
+    "included": true,
+    "input_index": 25,
+    "label": "L STS",
+    "nearest_vertex": 106628
+  },
+  {
+    "distance_mm": 3.376573930429073,
+    "hemisphere": "right",
+    "included": true,
+    "input_index": 26,
+    "label": "R STS",
+    "nearest_vertex": 20152
+  },
+  {
+    "distance_mm": 0.9157847288749614,
+    "hemisphere": "left",
+    "included": true,
+    "input_index": 27,
+    "label": "L TPJ",
+    "nearest_vertex": 74095
+  },
+  {
+    "distance_mm": 0.43929985024834023,
+    "hemisphere": "left",
+    "included": true,
+    "input_index": 28,
+    "label": "Broca",
+    "nearest_vertex": 51250
+  },
+  {
+    "distance_mm": 3.664403134463942,
+    "hemisphere": "left",
+    "included": true,
+    "input_index": 29,
+    "label": "Sup Front S",
+    "nearest_vertex": 67471
+  },
+  {
+    "distance_mm": 3.6815054410081176,
+    "hemisphere": "right",
+    "included": true,
+    "input_index": 30,
+    "label": "R TPJ",
+    "nearest_vertex": 132563
+  },
+  {
+    "distance_mm": 0.5000518054691265,
+    "hemisphere": "right",
+    "included": true,
+    "input_index": 31,
+    "label": "R Pars Op",
+    "nearest_vertex": 77365
+  },
+  {
+    "distance_mm": 22.87853913191948,
+    "hemisphere": "right",
+    "included": false,
+    "input_index": 32,
+    "label": "Cereb",
+    "nearest_vertex": 90614
+  },
+  {
+    "distance_mm": 7.728139950939132,
+    "hemisphere": "left",
+    "included": true,
+    "input_index": 33,
+    "label": "Dors PCC",
+    "nearest_vertex": 99539
+  },
+  {
+    "distance_mm": 2.381185337622636,
+    "hemisphere": "left",
+    "included": true,
+    "input_index": 34,
+    "label": "L Ins",
+    "nearest_vertex": 9209
+  },
+  {
+    "distance_mm": 8.493804559539779,
+    "hemisphere": "right",
+    "included": true,
+    "input_index": 35,
+    "label": "Cing",
+    "nearest_vertex": 4535
+  },
+  {
+    "distance_mm": 3.3927859157603146,
+    "hemisphere": "right",
+    "included": true,
+    "input_index": 36,
+    "label": "R Ins",
+    "nearest_vertex": 1601
+  },
+  {
+    "distance_mm": 5.439437008585435,
+    "hemisphere": "left",
+    "included": true,
+    "input_index": 37,
+    "label": "L Ant IPS",
+    "nearest_vertex": 42884
+  },
+  {
+    "distance_mm": 3.568082236725273,
+    "hemisphere": "right",
+    "included": true,
+    "input_index": 38,
+    "label": "R Ant IPS",
+    "nearest_vertex": 11485
+  }
+]
