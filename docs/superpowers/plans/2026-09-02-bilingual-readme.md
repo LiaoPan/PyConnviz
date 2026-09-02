@@ -41,12 +41,12 @@ release-command coverage.
 - Produces: packaging assertions that fail until the bilingual files are
   complete and packaged.
 
-- [ ] **Step 1: Extend the manifest expectation**
+- [x] **Step 1: Extend the manifest expectation**
 
 Require the exact manifest sequence to contain `include README.zh-CN.md`
 immediately after `include README.md`.
 
-- [ ] **Step 2: Add reciprocal-link and completeness tests**
+- [x] **Step 2: Add reciprocal-link and completeness tests**
 
 Add helpers and assertions equivalent to:
 
@@ -67,7 +67,7 @@ Also require the Chinese major headings, every backend/engine signature, all
 five gallery paths, `0.08 / 0.08 / 0.18`, `python -m build`, and
 `twine check dist/*`.
 
-- [ ] **Step 3: Verify RED**
+- [x] **Step 3: Verify RED**
 
 Run:
 
@@ -95,19 +95,19 @@ exist.
 - `README.zh-CN.md` starts with `[English](README.md) | 简体中文`.
 - `MANIFEST.in` contains both README files.
 
-- [ ] **Step 1: Add the English-to-Chinese link**
+- [x] **Step 1: Add the English-to-Chinese link**
 
 Insert the navigation line immediately after the English H1 and before its
 project description.
 
-- [ ] **Step 2: Translate the complete document**
+- [x] **Step 2: Translate the complete document**
 
 Create `README.zh-CN.md` with the same section order, HTML gallery markup,
 fenced code blocks, links, numerical values, and commands. Translate prose,
 headings, table labels, image alternative text, and explanatory comments
 outside code fences into Simplified Chinese.
 
-- [ ] **Step 3: Include the translation in source distributions**
+- [x] **Step 3: Include the translation in source distributions**
 
 Insert this line after `include README.md`:
 
@@ -115,7 +115,7 @@ Insert this line after `include README.md`:
 include README.zh-CN.md
 ```
 
-- [ ] **Step 4: Verify GREEN and Markdown integrity**
+- [x] **Step 4: Verify GREEN and Markdown integrity**
 
 Run:
 
@@ -127,7 +127,7 @@ git diff --check
 
 Expected: every command succeeds.
 
-- [ ] **Step 5: Commit the bilingual README**
+- [x] **Step 5: Commit the bilingual README**
 
 Stage only `README.md`, `README.zh-CN.md`, `MANIFEST.in`, and
 `tests/test_packaging.py`, then commit with:
@@ -150,7 +150,7 @@ git commit -m "docs: add Simplified Chinese README"
 - Both READMEs remain readable from a source checkout and the sdist.
 - The wheel/sdist metadata continues to render `README.md` as English.
 
-- [ ] **Step 1: Run static and full test gates**
+- [x] **Step 1: Run static and full test gates**
 
 ```bash
 .venv/bin/python -m compileall -q src tests examples scripts
@@ -161,13 +161,17 @@ MPLCONFIGDIR=/private/tmp/pyconnviz-mpl \
   --cov-report=term-missing --cov-fail-under=80
 ```
 
-- [ ] **Step 2: Build and inspect both distributions**
+- [x] **Step 2: Build and inspect both distributions**
 
 Build into a fresh `/private/tmp/pyconnviz-readme-dist.*` directory, run Twine
 against the exact wheel and sdist paths, and inspect the tar listing for both
 `README.md` and `README.zh-CN.md`.
 
-- [ ] **Step 3: Record final Git state**
+- [x] **Step 3: Record final Git state**
 
 Confirm all bilingual README task files are committed, the user's separate
+`LICENSE` edit remains unstaged, and no push occurred.
+
+Completion note: both READMEs were verified in the sdist, English remains the
+wheel metadata description, all task files are committed, the separate
 `LICENSE` edit remains unstaged, and no push occurred.
