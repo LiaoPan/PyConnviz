@@ -1,5 +1,7 @@
 # PyConnviz
 
+English | [简体中文](README.zh-CN.md)
+
 PyConnviz 0.1.0 is a Nilearn-first Python library for publication-quality
 visualization of already-computed MEG/EEG source-space ROI connectivity. It
 creates static and interactive cortical surface networks, Nilearn glass-brain

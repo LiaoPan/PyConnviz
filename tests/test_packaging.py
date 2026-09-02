@@ -62,6 +62,7 @@ def test_packaging_metadata_and_manifest_are_release_ready() -> None:
     expected_manifest_lines = (
         "include LICENSE",
         "include README.md",
+        "include README.zh-CN.md",
         "include pyproject.toml",
         "include scripts/release.sh",
         "recursive-include examples *.py",
@@ -151,4 +152,53 @@ def test_readme_recommends_plotly_then_glass_before_fixed_surface_views() -> Non
     assert re.search(
         r"supplementary fixed-view\s+anatomical context",
         recommended,
+    )
+
+
+def _fenced_blocks(markdown: str) -> list[str]:
+    return re.findall(r"```[^\n]*\n.*?```", markdown, flags=re.DOTALL)
+
+
+def test_readmes_offer_language_switch_and_chinese_is_complete() -> None:
+    english = (ROOT / "README.md").read_text(encoding="utf-8")
+    chinese = (ROOT / "README.zh-CN.md").read_text(encoding="utf-8")
+
+    english_header = "\n".join(english.splitlines()[:8])
+    chinese_header = "\n".join(chinese.splitlines()[:8])
+    assert "[简体中文](README.zh-CN.md)" in english_header
+    assert "[English](README.md)" in chinese_header
+    assert _fenced_blocks(chinese) == _fenced_blocks(english)
+    assert chinese.count("\n## ") == english.count("\n## ")
+
+    for heading in (
+        "## 效果展示",
+        "## 安装",
+        "## 推荐视图",
+        "## 快速开始",
+        "## 所有绘图模式",
+        "## 构建与发布",
+    ):
+        assert heading in chinese
+
+    for signature in (
+        'backend="surface"',
+        'engine="matplotlib"',
+        'engine="nilearn"',
+        'engine="plotly"',
+        'backend="glass"',
+        'backend="html"',
+        'backend="circle"',
+        "0.08 / 0.08 / 0.18",
+        "python -m build",
+        "twine check dist/*",
+    ):
+        assert signature in chinese
+
+    for filename in GALLERY_FILES:
+        assert f"docs/images/{filename}" in chinese
+    assert chinese.index("docs/images/surface-plotly.png") < chinese.index(
+        "docs/images/glass-brain.png"
+    )
+    assert chinese.index("docs/images/glass-brain.png") < chinese.index(
+        "docs/images/surface-matplotlib.png"
     )
