@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import inspect
 import json
-import re
 from pathlib import Path
 
 import numpy as np
@@ -232,7 +231,7 @@ def test_generator_contract_enables_depth_cue_for_static_surface_artifacts() -> 
         assert "depth_cue=True" in source[call_start:marker_index], marker
 
 
-def test_upstream_surface_static_calls_are_translucent_and_depth_aware() -> None:
+def test_upstream_surface_static_calls_use_fixed_style_visibility_budget() -> None:
     source = inspect.getsource(run_surface_case)
     matplotlib_call = source[
         source.index("matplotlib_result = plot_connectome(") :
@@ -244,10 +243,11 @@ def test_upstream_surface_static_calls_are_translucent_and_depth_aware() -> None
     ]
 
     for call in (matplotlib_call, native_call):
+        assert 'style="paper"' in call
         assert "depth_cue=True" in call
-        matches = re.findall(r"cortex_alpha=(\d+(?:\.\d+)?),", call)
-        assert matches
-        assert max(map(float, matches)) <= 0.24
+        assert "cortex_alpha=" not in call
+        assert "edge_alpha=" not in call
+        assert "edge_width_range=" not in call
 
 
 def test_generated_acceptance_set_passes_strict_checker(tmp_path: Path) -> None:

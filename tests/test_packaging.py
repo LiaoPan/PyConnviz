@@ -112,6 +112,19 @@ def test_readme_has_quickstart_gallery_all_backends_and_release_commands() -> No
         assert f"docs/images/{filename}" in readme
     assert readme.count('width="100%"') == 4
     assert 'width="60%"' in readme
+    supplementary_start = readme.index(
+        "<th>Supplementary: Matplotlib three-view surface</th>"
+    )
+    supplementary_end = readme.index("</table>", supplementary_start)
+    assert 'width="50%"' not in readme[supplementary_start:supplementary_end]
+
+
+def test_readme_documents_static_visibility_defaults_and_panel_scope() -> None:
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+
+    assert "0.08 / 0.08 / 0.18" in readme
+    assert "single-hemisphere lateral panels" in readme
+    assert "cross-hemisphere edges" in readme
 
 
 def test_readme_recommends_plotly_then_glass_before_fixed_surface_views() -> None:

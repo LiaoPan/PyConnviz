@@ -34,13 +34,24 @@ use real MSDL connectivity projected to fsaverage.
   <thead>
     <tr>
       <th>Supplementary: Matplotlib three-view surface</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><img src="docs/images/surface-matplotlib.png" width="100%" alt="PyConnviz depth-aware Matplotlib surface connectome with left, right, and dorsal views"></td>
+    </tr>
+  </tbody>
+</table>
+
+<table>
+  <thead>
+    <tr>
       <th>Supplementary: native Nilearn six-view surface</th>
     </tr>
   </thead>
   <tbody>
     <tr>
-      <td width="50%"><img src="docs/images/surface-matplotlib.png" width="100%" alt="PyConnviz depth-aware Matplotlib surface connectome with left, right, and dorsal views"></td>
-      <td width="50%"><img src="docs/images/surface-nilearn.png" width="100%" alt="PyConnviz translucent native Nilearn surface connectome with lateral, medial, and dorsal views"></td>
+      <td><img src="docs/images/surface-nilearn.png" width="100%" alt="PyConnviz translucent native Nilearn surface connectome with lateral, medial, and dorsal views"></td>
     </tr>
   </tbody>
 </table>
@@ -402,7 +413,6 @@ native_surface = plot_connectome(
     symmetric_cmap=None,
     symmetric_cbar="auto",
     inflate=False,
-    cortex_alpha=0.24,
     depth_cue=True,
     output="native_surface_three_views.png",
 )
@@ -410,9 +420,11 @@ native_surface = plot_connectome(
 
 Nilearn creates the Cartesian product of view modes and hemispheres, so this
 example produces three view rows and two hemisphere columns: six cortical
-panels. Each panel shows its complete intra-hemisphere prepared edge subset.
-Use the custom Matplotlib `both` panel or the native `view_connectome` HTML
-backend when cross-hemisphere edges must appear in one view.
+panels. The single-hemisphere lateral panels show their complete
+intra-hemisphere prepared edge subset; they intentionally cannot show
+cross-hemisphere edges. Use the custom Matplotlib `both` panel, the rotatable
+Plotly surface, the glass brain, or the native `view_connectome` HTML backend
+when cross-hemisphere edges must appear in one view.
 
 For this pure-connectivity call the native engine supplies an internal transparent
 all-zero Niimg only because `plot_img_on_surf` requires a volume. The visible
@@ -479,15 +491,23 @@ provided. With no overlay, PyConnviz still sends a transparent surface map
 through Nilearn so the configured cortex luminance and sulcal background remain
 visible instead of falling back to a white mesh.
 
-`cortex_alpha` controls cortical opacity in all three surface engines and must
-be a finite value from `0` to `1`. The style defaults are `0.24` for `paper`,
-`0.20` for `soft`, and `0.32` for `dark`. Matplotlib and native Nilearn
-surfaces also default to `depth_cue=True`: each prepared curve is divided into
-display segments and only its alpha is modulated by projected camera depth.
-Nearer segments remain stronger and farther segments become fainter. Edge
-color still encodes sign/magnitude, edge width still encodes absolute weight,
-and every panel retains its complete hemisphere-scoped edge set. Set
-`depth_cue=False` for uniform line alpha.
+An explicit `cortex_alpha` controls cortical opacity in all three surface
+engines and must be a finite value from `0` to `1`. With no explicit value,
+Plotly retains the interactive style defaults (`0.24 / 0.20 / 0.32` for
+`paper / soft / dark`). Matplotlib and native Nilearn use more transparent
+static fixed-view defaults (`0.08 / 0.08 / 0.18`) so internal connections
+survive a fixed projection. Their default edge visibility budgets are also
+renderer-specific: paper uses alpha `0.95`, a `1.4–5.4` point width range, and
+a `0.70` minimum projected-depth factor. Explicit `edge_alpha`,
+`edge_width_range`, and `cortex_alpha` always override these visual defaults.
+
+Both fixed-view engines default to `depth_cue=True`: each prepared curve is
+divided into display segments and only its alpha is modulated by projected
+camera depth. Nearer segments remain stronger and farther segments become
+fainter, but the raised floor prevents valid edges from disappearing at README
+thumbnail scale. Edge color still encodes sign/magnitude, edge width still
+encodes absolute weight, and every panel retains its complete
+hemisphere-scoped edge set. Set `depth_cue=False` for uniform line alpha.
 
 ## Coordinate contract: surface-RAS versus MNI
 

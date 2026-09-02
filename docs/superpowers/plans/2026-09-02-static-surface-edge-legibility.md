@@ -45,7 +45,7 @@ renders.
 - Static edge alpha must remain depth-varying but never fall below
   `fixed_edge_alpha * depth_cue_min_alpha`.
 
-- [ ] **Step 1: Write the failing style contract tests**
+- [x] **Step 1: Write the failing style contract tests**
 
 Assert the exact fixed-view values from the design table and these invariants:
 
@@ -55,14 +55,14 @@ assert style["fixed_edge_alpha"] * style["depth_cue_min_alpha"] >= 0.58
 assert style["fixed_cortex_alpha"] < style["cortex_alpha"]
 ```
 
-- [ ] **Step 2: Write failing renderer tests**
+- [x] **Step 2: Write failing renderer tests**
 
 Render one default paper panel with each static engine. Assert surface face
 alpha is `0.08`, minimum line width is at least `1.4`, line alpha varies with
 depth, and its minimum is at least `0.665`. Keep the existing explicit override
 tests and assert Plotly's soft-style mesh opacity remains `0.20`.
 
-- [ ] **Step 3: Verify RED**
+- [x] **Step 3: Verify RED**
 
 Run:
 
@@ -97,25 +97,25 @@ resolved_edge_widths = visual["fixed_edge_width_range"]
 resolved_edge_alpha = visual["fixed_edge_alpha"]
 ```
 
-- [ ] **Step 1: Implement exact style values**
+- [x] **Step 1: Implement exact style values**
 
 Add the three fixed-view keys for `paper`, `soft`, and `dark`, and raise
 `depth_cue_min_alpha` to `0.70`, `0.65`, and `0.70`, respectively. Preserve the
 existing non-fixed keys so Plotly is unchanged.
 
-- [ ] **Step 2: Route defaults through both static renderers**
+- [x] **Step 2: Route defaults through both static renderers**
 
 Use each fixed-view key only when its corresponding public argument is `None`.
 Do not change `depth_cued_line_data`, edge selection, normalization, or panel
 composition.
 
-- [ ] **Step 3: Verify GREEN and regression scope**
+- [x] **Step 3: Verify GREEN and regression scope**
 
 Run all four style/surface test modules plus Ruff on the changed files. Confirm
 the Plotly test still passes and both static renderers preserve explicit caller
 overrides.
 
-- [ ] **Step 4: Commit implementation**
+- [x] **Step 4: Commit implementation**
 
 ```bash
 git add src/pyconnviz/styles.py \
@@ -145,26 +145,26 @@ git commit -m "fix: preserve surface edges at thumbnail scale"
 - The real-data manifest retains exactly 40 prepared edges and identical
   backend edge tuples.
 
-- [ ] **Step 1: Update README and generation calls**
+- [x] **Step 1: Update README and generation calls**
 
 Document the fixed-view values and explain that single-hemisphere lateral
 panels show only intra-hemisphere edges. Remove the old explicit MSDL
 `cortex_alpha=0.20` so the paper fixed-view style is exercised by acceptance
 evidence.
 
-- [ ] **Step 2: Regenerate deterministic and real MSDL artifacts**
+- [x] **Step 2: Regenerate deterministic and real MSDL artifacts**
 
 Run the acceptance generator/checker, then invoke `run_surface_case` with the
 cached matrix, labels, coordinates, and `data/fsaverage`.
 
-- [ ] **Step 3: Refresh stable gallery images and inspect them**
+- [x] **Step 3: Refresh stable gallery images and inspect them**
 
 Copy the two real MSDL PNGs to `docs/images`. Inspect original images and
 dedicated approximately 499-pixel lateral previews. Confirm all 9 left and 10
 right panel edges exist in artists/manifests and are visually traceable; verify
 the whole-brain panel retains all 40 edges.
 
-- [ ] **Step 4: Commit documentation and evidence**
+- [x] **Step 4: Commit documentation and evidence**
 
 ```bash
 git add README.md scripts/upstream_validation.py artifacts/acceptance \

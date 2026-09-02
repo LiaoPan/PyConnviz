@@ -422,11 +422,11 @@
   "schema_version": 1,
   "visual_artifacts": {
     "comparison": {
-      "byte_count": 567173,
+      "byte_count": 640143,
       "height": 2033,
       "non_flat": true,
       "path": "artifacts/upstream_validation/comparisons/surface_msdl_fsaverage/surface_comparison.png",
-      "variance": 1485.1464608076583,
+      "variance": 1601.8210694241563,
       "width": 1813
     },
     "surface_interactive": {
@@ -436,19 +436,19 @@
       "path": "artifacts/upstream_validation/comparisons/surface_msdl_fsaverage/pyconnviz_surface_interactive.html"
     },
     "surface_nilearn_native": {
-      "byte_count": 294294,
+      "byte_count": 328801,
       "height": 1241,
       "non_flat": true,
       "path": "artifacts/upstream_validation/comparisons/surface_msdl_fsaverage/pyconnviz_surface_nilearn_native.png",
-      "variance": 2083.099552586645,
+      "variance": 2224.8052495127986,
       "width": 1146
     },
     "surface_paper": {
-      "byte_count": 269436,
+      "byte_count": 300306,
       "height": 640,
       "non_flat": true,
       "path": "artifacts/upstream_validation/comparisons/surface_msdl_fsaverage/pyconnviz_surface_paper.png",
-      "variance": 1125.5616343398572,
+      "variance": 1311.3690857498884,
       "width": 1813
     }
   }
