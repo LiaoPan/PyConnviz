@@ -488,6 +488,9 @@ def plot_surface_plotly(
     endpoint_x: list[float] = []
     endpoint_y: list[float] = []
     endpoint_z: list[float] = []
+    endpoint_u: list[float] = []
+    endpoint_v: list[float] = []
+    endpoint_w: list[float] = []
     endpoint_hover: list[str] = []
     for edge, diameter in zip(prepared.edges, edge_diameters, strict=True):
         cross_hemi = (
@@ -520,9 +523,15 @@ def plot_surface_plotly(
         edge_vertex_colors.extend([color] * len(part.vertices))
         edge_mesh_hover.extend([hover] * len(part.vertices))
         if show_arrows and prepared.directed:
-            endpoint_x.append(float(curve[-1, 0]))
-            endpoint_y.append(float(curve[-1, 1]))
-            endpoint_z.append(float(curve[-1, 2]))
+            tangent = curve[-1] - curve[-2]
+            tangent /= np.linalg.norm(tangent)
+            tip = curve[-1] - tangent * (node_diameters[edge.target] / 2.0)
+            endpoint_x.append(float(tip[0]))
+            endpoint_y.append(float(tip[1]))
+            endpoint_z.append(float(tip[2]))
+            endpoint_u.append(float(tangent[0]))
+            endpoint_v.append(float(tangent[1]))
+            endpoint_w.append(float(tangent[2]))
             endpoint_hover.append(hover)
     edge_mesh = merge_meshes(edge_parts)
     if edge_parts:
@@ -572,15 +581,24 @@ def plot_surface_plotly(
     )
     if endpoint_x:
         figure.add_trace(
-            graph_objects.Scatter3d(
+            graph_objects.Cone(
                 x=endpoint_x,
                 y=endpoint_y,
                 z=endpoint_z,
-                mode="markers",
-                name="Direction markers",
-                marker={"size": 4, "symbol": "diamond", "color": "black"},
+                u=endpoint_u,
+                v=endpoint_v,
+                w=endpoint_w,
+                name="Directions",
+                anchor="tip",
+                sizemode="absolute",
+                sizeref=4.0,
+                colorscale=((0.0, "#16181d"), (1.0, "#16181d")),
+                showscale=False,
+                lighting=_EDGE_LIGHTING,
+                lightposition=_NETWORK_LIGHT_POSITION,
                 hovertext=endpoint_hover,
                 hovertemplate="%{hovertext}<extra></extra>",
+                hoverinfo="text",
                 showlegend=False,
             )
         )

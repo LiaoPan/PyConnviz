@@ -232,6 +232,32 @@ def test_plotly_traces_hover_direction_and_offline_html(tmp_path: Path) -> None:
     assert '"render_mode":"ball-and-stick"' in html
 
 
+def test_plotly_directed_arrows_are_true_3d_cones() -> None:
+    prepared = network(directed=True)
+
+    result = plot_surface_plotly(
+        prepared,
+        geometry(),
+        node_overlay="none",
+        show_arrows=True,
+        show=False,
+    )
+
+    arrows = [
+        trace
+        for trace in result.artist.data
+        if trace.type == "cone" and trace.name == "Directions"
+    ]
+    assert len(arrows) == 1
+    assert not any(trace.name == "Direction markers" for trace in result.artist.data)
+    arrow = arrows[0]
+    assert len(arrow.x) == len(prepared.edges)
+    assert len(arrow.hovertext) == len(prepared.edges)
+    vectors = np.column_stack((arrow.u, arrow.v, arrow.w))
+    np.testing.assert_allclose(np.linalg.norm(vectors, axis=1), 1.0)
+    assert np.all(np.isfinite(np.column_stack((arrow.x, arrow.y, arrow.z))))
+
+
 def test_show_false_never_calls_plotly_show(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
