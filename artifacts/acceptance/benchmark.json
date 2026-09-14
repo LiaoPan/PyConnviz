@@ -2,9 +2,9 @@
   "nodes": 200,
   "visible_edges": 120,
   "vertices_per_hemisphere": 10242,
-  "prepare_seconds": 0.7614215399953537,
-  "static_render_seconds": 3.578953652002383,
-  "peak_extra_bytes": 44013527,
+  "prepare_seconds": 0.7060303479993308,
+  "static_render_seconds": 17.88541322600031,
+  "peak_extra_bytes": 212294364,
   "target_prepare_under_1s": true,
   "target_render_under_20s": true,
   "target_peak_under_1gb": true

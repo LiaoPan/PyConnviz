@@ -1213,6 +1213,36 @@
       ]
     ]
   },
+  "static_surface_geometry": {
+    "surface_matplotlib": {
+      "render_mode": "ball-and-stick",
+      "renderer": "matplotlib-poly3d",
+      "panels": 3,
+      "node_collections": 3,
+      "edge_collections": 3,
+      "node_mesh_triangles": 66240,
+      "node_sphere_triangles": 1656,
+      "edge_mesh_triangles": 37440,
+      "node_diameter_range": [
+        6.0,
+        16.0
+      ]
+    },
+    "surface_nilearn": {
+      "render_mode": "ball-and-stick",
+      "renderer": "nilearn-plot-img-on-surf+matplotlib-poly3d",
+      "panels": 6,
+      "node_collections": 6,
+      "edge_collections": 6,
+      "node_mesh_triangles": 99360,
+      "node_sphere_triangles": 1656,
+      "edge_mesh_triangles": 37440,
+      "node_diameter_range": [
+        6.0,
+        16.0
+      ]
+    }
+  },
   "surface_interactive_static_export": {
     "renderer": "matplotlib-fallback",
     "fallback": true,

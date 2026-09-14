@@ -185,7 +185,7 @@ MNE_DONTWRITE_HOME=true MPLCONFIGDIR=/private/tmp/pyconnviz-mpl \
   .venv/bin/python scripts/generate_acceptance_artifacts.py \
   --outdir artifacts/acceptance
 MPLCONFIGDIR=/private/tmp/pyconnviz-mpl .venv/bin/python \
-  scripts/check_acceptance_artifacts.py --artifacts artifacts/acceptance --strict
+  scripts/check_acceptance_artifacts.py artifacts/acceptance
 ```
 
 Expected: the strict checker passes and both static records contain

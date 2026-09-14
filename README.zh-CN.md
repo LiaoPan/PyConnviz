@@ -100,8 +100,9 @@ python -m pip install -e ".[dev,interactive,export]"
    皮层遮挡影响，最便于比较完整的全脑连接图。
 3. Matplotlib 和原生 Nilearn surface 是**补充性的固定视角解剖背景**。
    Matplotlib 和原生 Nilearn 使用真正的三维 ball-and-stick
-   `Poly3DCollection` 几何：带光照的球体与管体在各视角中保持物理尺寸，半透明
-   皮层则保证内部连接可见。固定投影仍作为可旋转 Plotly 视图的补充。
+   `Poly3DCollection` 几何：高分辨率光滑球体与带光照的管体在各视角中保持
+   物理尺寸，半透明皮层则保证内部连接可见。固定投影仍作为可旋转 Plotly
+   视图的补充。
 
 对应调用按推荐顺序如下：
 

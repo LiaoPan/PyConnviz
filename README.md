@@ -106,10 +106,10 @@ Choose the view for the question being answered:
    makes the complete whole-brain graph easiest to compare.
 3. Matplotlib and native Nilearn surfaces are **supplementary fixed-view
    anatomical context**. Matplotlib and native Nilearn use true-3D
-   ball-and-stick `Poly3DCollection` geometry: shaded spheres and tubes retain
-   physical dimensions under each camera, while the translucent cortex keeps
-   internal connections visible. Their fixed projections remain supplementary
-   to the rotatable Plotly view.
+   ball-and-stick `Poly3DCollection` geometry: high-resolution smooth spheres
+   and shaded tubes retain physical dimensions under each camera, while the
+   translucent cortex keeps internal connections visible. Their fixed
+   projections remain supplementary to the rotatable Plotly view.
 
 The corresponding calls, in recommended order, are:
 
