@@ -7,6 +7,7 @@ import subprocess
 import sys
 from base64 import b64encode
 from html import escape
+from importlib.metadata import version
 from pathlib import Path
 
 import numpy as np
@@ -300,8 +301,9 @@ def test_environment_versions_records_validation_stack() -> None:
         "mne-connectivity",
         "matplotlib",
     }
-    assert versions["nilearn"] == "0.14.0"
-    assert versions["mne-connectivity"] == "0.9.0"
+    assert all(isinstance(value, str) and value for value in versions.values())
+    assert versions["nilearn"] == version("nilearn")
+    assert versions["mne-connectivity"] == version("mne-connectivity")
 
 
 def test_geometry_from_mni_preserves_labels_coordinates_and_hemispheres() -> None:

@@ -44,9 +44,11 @@ assert versions["mne-connectivity"] == version("mne-connectivity")
 - [ ] **Step 3: Run focused and module verification**
 
 ```bash
-MPLCONFIGDIR=/private/tmp/pyconnviz-mpl .venv/bin/python -m pytest \
+MNE_DONTWRITE_HOME=true MPLCONFIGDIR=/private/tmp/pyconnviz-mpl \
+  .venv/bin/python -m pytest \
   tests/test_upstream_validation.py::test_environment_versions_records_validation_stack -q
-MPLCONFIGDIR=/private/tmp/pyconnviz-mpl .venv/bin/python -m pytest \
+MNE_DONTWRITE_HOME=true MPLCONFIGDIR=/private/tmp/pyconnviz-mpl \
+  .venv/bin/python -m pytest \
   tests/test_upstream_validation.py -q
 ```
 
@@ -56,7 +58,8 @@ Expected: both commands pass.
 
 ```bash
 .venv/bin/python -m ruff check src tests examples scripts
-MPLCONFIGDIR=/private/tmp/pyconnviz-mpl .venv/bin/python -m pytest -q \
+MNE_DONTWRITE_HOME=true MPLCONFIGDIR=/private/tmp/pyconnviz-mpl \
+  .venv/bin/python -m pytest -q \
   --cov=pyconnviz --cov-report=term-missing --cov-fail-under=80
 ```
 
