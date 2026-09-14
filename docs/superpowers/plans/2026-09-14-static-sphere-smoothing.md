@@ -47,7 +47,7 @@ MPLCONFIGDIR=/private/tmp/pyconnviz-mpl .venv/bin/python -m pytest \
   tests/test_matplotlib_ball_stick.py::test_spheres_are_one_auditable_shaded_poly_collection -q
 ```
 
-Expected: failure because the current collection contains 170 vertices and 336 triangles for two 8-by-12 spheres.
+Expected: failure because the current collection contains 172 vertices and 336 triangles for two 8-by-12 spheres.
 
 - [ ] **Step 3: Implement the minimal geometry change**
 
