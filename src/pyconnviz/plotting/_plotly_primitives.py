@@ -1,4 +1,4 @@
-"""Deterministic triangular primitives for Plotly true-3D rendering."""
+"""Deterministic triangular primitives shared by true-3D renderers."""
 
 from __future__ import annotations
 
@@ -182,6 +182,52 @@ def tube_mesh(points: ArrayLike, radius: float, *, sides: int) -> TriangleMesh:
         vertices=rings.reshape(-1, 3),
         faces=np.asarray(faces, dtype=np.int64),
     )
+
+
+def cone_mesh(
+    base_center: ArrayLike,
+    tip: ArrayLike,
+    radius: float,
+    *,
+    sides: int,
+) -> TriangleMesh:
+    """Build a closed cone with an outward-facing base and side surface."""
+
+    resolved_base = np.asarray(base_center, dtype=np.float64)
+    resolved_tip = np.asarray(tip, dtype=np.float64)
+    if resolved_base.shape != (3,) or not np.all(np.isfinite(resolved_base)):
+        raise ValueError("base_center must contain three finite coordinates")
+    if resolved_tip.shape != (3,) or not np.all(np.isfinite(resolved_tip)):
+        raise ValueError("tip must contain three finite coordinates")
+    axis = resolved_tip - resolved_base
+    direction = _unit(axis, name="base_center and tip must be distinct")
+    resolved_radius = _positive_finite(radius, name="radius")
+    if sides < 3:
+        raise ValueError("sides must be at least 3")
+
+    coordinate_axes = np.eye(3, dtype=np.float64)
+    reference = coordinate_axes[int(np.argmin(np.abs(direction)))]
+    normal = _unit(np.cross(direction, reference), name="cone base normal")
+    binormal = _unit(np.cross(direction, normal), name="cone base binormal")
+    angles = 2.0 * np.pi * np.arange(sides, dtype=np.float64) / sides
+    rim = (
+        resolved_base[None, :]
+        + resolved_radius * np.cos(angles)[:, None] * normal[None, :]
+        + resolved_radius * np.sin(angles)[:, None] * binormal[None, :]
+    )
+    vertices = np.vstack((resolved_base, rim, resolved_tip))
+    tip_index = sides + 1
+    faces: list[tuple[int, int, int]] = []
+    for side in range(sides):
+        current = 1 + side
+        next_vertex = 1 + (side + 1) % sides
+        faces.extend(
+            (
+                (tip_index, current, next_vertex),
+                (0, next_vertex, current),
+            )
+        )
+    return TriangleMesh(vertices, np.asarray(faces, dtype=np.int64))
 
 
 def merge_meshes(meshes: Sequence[TriangleMesh]) -> TriangleMesh:

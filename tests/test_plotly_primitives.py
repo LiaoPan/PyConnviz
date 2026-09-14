@@ -141,3 +141,47 @@ def test_tube_mesh_rejects_invalid_geometry(
 
     with pytest.raises(ValueError, match=message):
         primitives.tube_mesh(points, radius, sides=sides)
+
+
+def test_cone_mesh_is_closed_non_degenerate_and_has_requested_endpoints() -> None:
+    primitives = _primitives()
+    base = np.array([1.0, 2.0, 3.0])
+    tip = np.array([1.0, 2.0, 7.0])
+    sides = 8
+
+    mesh = primitives.cone_mesh(base, tip, 1.5, sides=sides)
+
+    assert mesh.vertices.shape == (sides + 2, 3)
+    assert mesh.faces.shape == (2 * sides, 3)
+    np.testing.assert_allclose(mesh.vertices[0], base)
+    np.testing.assert_allclose(mesh.vertices[-1], tip)
+    rim = mesh.vertices[1:-1]
+    np.testing.assert_allclose(np.mean(rim, axis=0), base, atol=1e-12)
+    np.testing.assert_allclose(np.linalg.norm(rim[:, :2] - base[:2], axis=1), 1.5)
+    triangles = mesh.vertices[mesh.faces]
+    doubled_areas = np.linalg.norm(
+        np.cross(triangles[:, 1] - triangles[:, 0], triangles[:, 2] - triangles[:, 0]),
+        axis=1,
+    )
+    assert np.all(doubled_areas > 1e-12)
+
+
+@pytest.mark.parametrize(
+    ("base", "tip", "radius", "sides", "message"),
+    (
+        ([0, 0, 0], [0, 0, 0], 1.0, 8, "distinct"),
+        ([0, 0, 0], [0, 0, 1], 0.0, 8, "positive"),
+        ([0, 0, 0], [0, 0, 1], 1.0, 2, "at least 3"),
+    ),
+)
+def test_cone_mesh_rejects_invalid_geometry(
+    base: list[int],
+    tip: list[int],
+    radius: float,
+    sides: int,
+    message: str,
+) -> None:
+    primitives = _primitives()
+
+    with pytest.raises(ValueError, match=message):
+        primitives.cone_mesh(base, tip, radius, sides=sides)
