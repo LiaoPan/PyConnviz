@@ -14,3 +14,4 @@ data/
 docs/*
 !docs/images/
 !docs/images/**
+!data/fsaverage/surf/lh.pial
