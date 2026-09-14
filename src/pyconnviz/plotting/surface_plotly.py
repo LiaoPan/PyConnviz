@@ -21,6 +21,7 @@ from ..geometry import node_surface_normals, to_nilearn_polymesh
 from ..models import ConnectomeGeometry, OptionalDependencyError, PlotResult, PreparedConnectome
 from ..styles import get_style
 from ..surface_overlay import build_surface_overlay, overlay_limits
+from ._plotly_primitives import TriangleMesh, merge_meshes, sphere_mesh, tube_mesh
 from ._surface_common import (
     edge_color_norm,
     has_visible_surface_values,
@@ -42,6 +43,25 @@ DEFAULT_STATIC_VIEWS: tuple[StaticView, ...] = (
     "ventral",
 )
 
+_SPHERE_LATITUDE_STEPS = 10
+_SPHERE_LONGITUDE_STEPS = 16
+_TUBE_SIDES = 8
+_NODE_LIGHTING = {
+    "ambient": 0.34,
+    "diffuse": 0.88,
+    "specular": 0.62,
+    "roughness": 0.34,
+    "fresnel": 0.08,
+}
+_EDGE_LIGHTING = {
+    "ambient": 0.38,
+    "diffuse": 0.86,
+    "specular": 0.42,
+    "roughness": 0.38,
+    "fresnel": 0.06,
+}
+_NETWORK_LIGHT_POSITION = {"x": 1200, "y": -1800, "z": 2200}
+
 
 def _require_plotly() -> None:
     if importlib.util.find_spec("plotly") is None:
@@ -56,12 +76,67 @@ def warn_if_many_edges(edge_count: int, *, recommended_max: int = 200) -> int:
 
     if edge_count > recommended_max:
         warnings.warn(
-            f"Plotly will render all {edge_count} edges as individual traces; "
+            f"Plotly will generate tube geometry for all {edge_count} edges; "
             f"for responsive HTML, prepare at most {recommended_max} visible edges",
             RuntimeWarning,
             stacklevel=2,
         )
     return edge_count
+
+
+def _mesh_coordinates(mesh: TriangleMesh) -> dict[str, NDArray[Any]]:
+    """Return explicit Plotly Mesh3d coordinate and face arrays."""
+
+    return {
+        "x": mesh.vertices[:, 0],
+        "y": mesh.vertices[:, 1],
+        "z": mesh.vertices[:, 2],
+        "i": mesh.faces[:, 0],
+        "j": mesh.faces[:, 1],
+        "k": mesh.faces[:, 2],
+    }
+
+
+def _color_limits(values: NDArray[np.float64]) -> tuple[float, float]:
+    """Return finite non-zero color limits even when every value is equal."""
+
+    lower = float(np.min(values))
+    upper = float(np.max(values))
+    if lower == upper:
+        padding = max(abs(lower) * 0.05, 0.5)
+        lower -= padding
+        upper += padding
+    return lower, upper
+
+
+def _node_mesh_data(
+    positions: NDArray[np.float64],
+    diameters: NDArray[np.float64],
+    color_values: NDArray[np.float64],
+    hover: Sequence[str],
+) -> tuple[TriangleMesh, NDArray[np.float64], list[str], list[int]]:
+    parts = [
+        sphere_mesh(
+            center,
+            diameter / 2.0,
+            latitude_steps=_SPHERE_LATITUDE_STEPS,
+            longitude_steps=_SPHERE_LONGITUDE_STEPS,
+        )
+        for center, diameter in zip(positions, diameters, strict=True)
+    ]
+    counts = [len(part.vertices) for part in parts]
+    intensities = np.concatenate(
+        [
+            np.full(count, value, dtype=np.float64)
+            for count, value in zip(counts, color_values, strict=True)
+        ]
+    )
+    hovertext = [
+        text
+        for text, count in zip(hover, counts, strict=True)
+        for _ in range(count)
+    ]
+    return merge_meshes(parts), intensities, hovertext, counts
 
 
 def _output_paths(output: str | Path | Sequence[str | Path] | None) -> tuple[Path, ...]:
@@ -238,7 +313,7 @@ def _build_static_montage(
         for trace in figure.data:
             copied_trace = copy.deepcopy(trace)
             if getattr(copied_trace, "name", None) == "Nodes":
-                copied_trace.marker.showscale = index == 0
+                copied_trace.showscale = index == 0
             montage.add_trace(copied_trace, row=row + 1, col=column + 1)
         scene_name = "scene" if index == 0 else f"scene{index + 1}"
         resolved_scene_layout = dict(scene_layout)
@@ -363,7 +438,7 @@ def plot_surface_plotly(
     positions = display.node_positions
     normals = node_surface_normals(geometry)
     center = display.brain_center
-    node_sizes = scale_values(size_values, node_size_range)
+    node_diameters = scale_values(size_values, node_size_range)
     node_cmap_name = visual["node_cmap"] if node_cmap is None else node_cmap
     node_hover = [
         "<br>".join(
@@ -378,42 +453,46 @@ def plot_surface_plotly(
             zip(prepared.node_names, geometry.hemispheres, strict=True)
         )
     ]
-    figure.add_trace(
-        graph_objects.Scatter3d(
-            x=positions[:, 0],
-            y=positions[:, 1],
-            z=positions[:, 2],
-            mode="markers",
-            name="Nodes",
-            marker={
-                "size": node_sizes,
-                "color": color_values,
-                "colorscale": node_cmap_name,
-                "showscale": True,
-                "colorbar": {"title": "Node value"},
-                "line": {"width": 0.7, "color": visual["node_edgecolor"]},
-            },
-            hovertext=node_hover,
-            hovertemplate="%{hovertext}<extra></extra>",
-        )
+    node_mesh, node_intensities, node_mesh_hover, node_vertex_counts = _node_mesh_data(
+        positions,
+        node_diameters,
+        color_values,
+        node_hover,
     )
     warn_if_many_edges(len(prepared.edges))
     weights = np.array([edge.weight for edge in prepared.edges], dtype=float)
-    normalization, automatic_cmap = edge_color_norm(
-        weights, vmin=edge_vmin, vmax=edge_vmax
-    )
-    edge_cmap_name = automatic_cmap if edge_cmap in {None, "auto"} else edge_cmap
-    edge_colormap = colormaps[edge_cmap_name]
-    widths = scale_values(
-        np.abs(weights),
-        tuple(visual["edge_width_range"] if edge_width_range is None else edge_width_range),
-    )
+    edge_parts: list[TriangleMesh] = []
+    edge_vertex_colors: list[str] = []
+    edge_mesh_hover: list[str] = []
+    edge_vertex_counts: list[int] = []
+    if len(weights):
+        normalization, automatic_cmap = edge_color_norm(
+            weights,
+            vmin=edge_vmin,
+            vmax=edge_vmax,
+        )
+        edge_cmap_name = automatic_cmap if edge_cmap in {None, "auto"} else edge_cmap
+        edge_colormap = colormaps[edge_cmap_name]
+        edge_diameters = scale_values(
+            np.abs(weights),
+            tuple(
+                visual["edge_width_range"]
+                if edge_width_range is None
+                else edge_width_range
+            ),
+        )
+    else:
+        normalization = None
+        edge_colormap = None
+        edge_diameters = np.empty(0, dtype=np.float64)
     endpoint_x: list[float] = []
     endpoint_y: list[float] = []
     endpoint_z: list[float] = []
     endpoint_hover: list[str] = []
-    for edge, width in zip(prepared.edges, widths, strict=True):
-        cross_hemi = geometry.hemispheres[edge.source] != geometry.hemispheres[edge.target]
+    for edge, diameter in zip(prepared.edges, edge_diameters, strict=True):
+        cross_hemi = (
+            geometry.hemispheres[edge.source] != geometry.hemispheres[edge.target]
+        )
         curve = quadratic_bezier(
             positions[edge.source],
             positions[edge.target],
@@ -429,29 +508,68 @@ def plot_surface_plotly(
         direction_name = (
             f"{prepared.node_names[edge.source]} → {prepared.node_names[edge.target]}"
         )
-        distance_text = "n/a" if edge.distance_mm is None else f"{edge.distance_mm:.6g} mm"
-        hover = f"{direction_name}<br>weight={edge.weight:.6g}<br>distance={distance_text}"
-        figure.add_trace(
-            graph_objects.Scatter3d(
-                x=curve[:, 0],
-                y=curve[:, 1],
-                z=curve[:, 2],
-                mode="lines",
-                name=f"Edge {direction_name}",
-                line={
-                    "color": to_hex(edge_colormap(normalization(edge.weight))),
-                    "width": float(width),
-                },
-                hovertext=[hover] * len(curve),
-                hovertemplate="%{hovertext}<extra></extra>",
-                showlegend=False,
-            )
+        distance_text = (
+            "n/a" if edge.distance_mm is None else f"{edge.distance_mm:.6g} mm"
         )
+        hover = f"{direction_name}<br>weight={edge.weight:.6g}<br>distance={distance_text}"
+        part = tube_mesh(curve, float(diameter) / 2.0, sides=_TUBE_SIDES)
+        edge_parts.append(part)
+        edge_vertex_counts.append(len(part.vertices))
+        assert normalization is not None and edge_colormap is not None
+        color = to_hex(edge_colormap(normalization(edge.weight)))
+        edge_vertex_colors.extend([color] * len(part.vertices))
+        edge_mesh_hover.extend([hover] * len(part.vertices))
         if show_arrows and prepared.directed:
             endpoint_x.append(float(curve[-1, 0]))
             endpoint_y.append(float(curve[-1, 1]))
             endpoint_z.append(float(curve[-1, 2]))
             endpoint_hover.append(hover)
+    edge_mesh = merge_meshes(edge_parts)
+    if edge_parts:
+        figure.add_trace(
+            graph_objects.Mesh3d(
+                **_mesh_coordinates(edge_mesh),
+                name="Edges",
+                vertexcolor=edge_vertex_colors,
+                flatshading=False,
+                lighting=_EDGE_LIGHTING,
+                lightposition=_NETWORK_LIGHT_POSITION,
+                opacity=0.96,
+                hovertext=edge_mesh_hover,
+                hovertemplate="%{hovertext}<extra></extra>",
+                hoverinfo="text",
+                meta={
+                    "diameters": edge_diameters.tolist(),
+                    "vertex_counts": edge_vertex_counts,
+                },
+                showlegend=False,
+            )
+        )
+    node_cmin, node_cmax = _color_limits(color_values)
+    figure.add_trace(
+        graph_objects.Mesh3d(
+            **_mesh_coordinates(node_mesh),
+            name="Nodes",
+            intensity=node_intensities,
+            intensitymode="vertex",
+            colorscale=node_cmap_name,
+            cmin=node_cmin,
+            cmax=node_cmax,
+            showscale=True,
+            colorbar={"title": "Node value"},
+            flatshading=False,
+            lighting=_NODE_LIGHTING,
+            lightposition=_NETWORK_LIGHT_POSITION,
+            hovertext=node_mesh_hover,
+            hovertemplate="%{hovertext}<extra></extra>",
+            hoverinfo="text",
+            meta={
+                "diameters": node_diameters.tolist(),
+                "vertex_counts": node_vertex_counts,
+            },
+            showlegend=False,
+        )
+    )
     if endpoint_x:
         figure.add_trace(
             graph_objects.Scatter3d(
@@ -471,8 +589,11 @@ def plot_surface_plotly(
         plot_bgcolor=visual["background"],
         meta={
             "pyconnviz_version": "0.1.0",
+            "render_mode": "ball-and-stick",
             "edge_count": len(prepared.edges),
             "directed": prepared.directed,
+            "network_vertices": len(node_mesh.vertices) + len(edge_mesh.vertices),
+            "network_triangles": len(node_mesh.faces) + len(edge_mesh.faces),
         },
         showlegend=False,
     )

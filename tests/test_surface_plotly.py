@@ -12,6 +12,7 @@ from pyconnviz.connectivity import prepare_connectome
 from pyconnviz.geometry import geometry_from_arrays
 from pyconnviz.models import HemisphereMesh, OptionalDependencyError
 from pyconnviz.plotting import surface_plotly
+from pyconnviz.plotting._surface_common import scale_values
 from pyconnviz.plotting.surface_plotly import plot_surface_plotly, warn_if_many_edges
 
 
@@ -94,10 +95,18 @@ def test_plotly_nodes_share_nilearn_bilateral_mesh_coordinates() -> None:
     surface = result.artist.data[0]
     nodes = next(trace for trace in result.artist.data if trace.name == "Nodes")
     node_vertices = (0, 3, 4, 7)
-    np.testing.assert_allclose(nodes.x, np.asarray(surface.x)[list(node_vertices)])
-    np.testing.assert_allclose(nodes.y, np.asarray(surface.y)[list(node_vertices)])
-    np.testing.assert_allclose(nodes.z, np.asarray(surface.z)[list(node_vertices)])
-    np.testing.assert_allclose(nodes.x, [-4.0, -2.0, -1.0, 1.0])
+    expected = np.column_stack((surface.x, surface.y, surface.z))[list(node_vertices)]
+    vertices = np.column_stack((nodes.x, nodes.y, nodes.z))
+    counts = nodes.meta["vertex_counts"]
+    starts = np.cumsum([0, *counts[:-1]])
+    centers = np.vstack(
+        [
+            np.mean(vertices[start : start + count], axis=0)
+            for start, count in zip(starts, counts, strict=True)
+        ]
+    )
+    np.testing.assert_allclose(centers, expected, atol=1e-12)
+    np.testing.assert_allclose(centers[:, 0], [-4.0, -2.0, -1.0, 1.0])
     assert not any("threshold" in str(item.message).lower() for item in caught)
 
 
@@ -147,7 +156,42 @@ def test_plotly_surface_cmap_is_independent_from_node_cmap(
 
     assert calls[0]["surface_cmap"] == "RdBu_r"
     nodes = next(trace for trace in result.artist.data if trace.name == "Nodes")
-    assert nodes.marker.colorscale != result.artist.data[0].colorscale
+    assert nodes.colorscale != result.artist.data[0].colorscale
+
+
+def test_plotly_uses_true_3d_ball_and_stick_meshes_with_value_scaled_diameters() -> None:
+    prepared = network()
+    node_values = np.array([0.0, 1.0, 2.0, 3.0])
+    result = plot_surface_plotly(
+        prepared,
+        geometry(),
+        node_overlay="none",
+        node_size_values=node_values,
+        node_size_range=(4.0, 10.0),
+        edge_width_range=(1.0, 3.0),
+        show=False,
+    )
+
+    figure = result.artist
+    nodes = next(trace for trace in figure.data if trace.name == "Nodes")
+    edges = next(trace for trace in figure.data if trace.name == "Edges")
+    assert nodes.type == "mesh3d"
+    assert edges.type == "mesh3d"
+    assert not any(
+        trace.type == "scatter3d" and trace.mode in {"markers", "lines"}
+        for trace in figure.data
+    )
+    np.testing.assert_allclose(nodes.meta["diameters"], [4.0, 6.0, 8.0, 10.0])
+    weights = np.array([abs(edge.weight) for edge in prepared.edges])
+    np.testing.assert_allclose(
+        edges.meta["diameters"],
+        scale_values(weights, (1.0, 3.0)),
+    )
+    assert nodes.lighting.diffuse > 0.0
+    assert edges.lighting.specular > 0.0
+    assert figure.layout.meta["render_mode"] == "ball-and-stick"
+    assert figure.layout.meta["network_vertices"] == len(nodes.x) + len(edges.x)
+    assert figure.layout.meta["network_triangles"] == len(nodes.i) + len(edges.i)
 
 
 def test_plotly_traces_hover_direction_and_offline_html(tmp_path: Path) -> None:
@@ -168,22 +212,24 @@ def test_plotly_traces_hover_direction_and_offline_html(tmp_path: Path) -> None:
     assert result.output_files == (output,)
     assert output.stat().st_size > 1000
     node_traces = [trace for trace in figure.data if trace.name == "Nodes"]
-    edge_traces = [trace for trace in figure.data if str(trace.name).startswith("Edge ")]
+    edge_traces = [trace for trace in figure.data if trace.name == "Edges"]
     assert len(node_traces) == 1
-    assert len(node_traces[0].x) == 4
-    assert len(edge_traces) == len(prepared.edges)
+    assert len(node_traces[0].x) > 4
+    assert len(edge_traces) == 1
     assert "L0" in node_traces[0].hovertext[0]
     assert "group=A" in node_traces[0].hovertext[0]
     expected = [
         f"{prepared.node_names[edge.source]} → {prepared.node_names[edge.target]}"
         for edge in prepared.edges
     ]
-    assert [trace.name.removeprefix("Edge ") for trace in edge_traces] == expected
+    edge_hover = "\n".join(edge_traces[0].hovertext)
+    assert all(direction in edge_hover for direction in expected)
     html = output.read_text(encoding="utf-8")
     assert "plotly.js" in html.lower()
     assert "L0" in html
     assert "weight=" in html
     assert "pyconnviz_version" in html
+    assert '"render_mode":"ball-and-stick"' in html
 
 
 def test_show_false_never_calls_plotly_show(
@@ -344,7 +390,7 @@ def test_static_montage_has_four_native_cameras_and_complete_trace_sets(
             result.artist.data
         )
     node_traces = [trace for trace in montage.data if trace.name == "Nodes"]
-    assert [trace.marker.showscale for trace in node_traces] == [
+    assert [trace.showscale for trace in node_traces] == [
         True,
         False,
         False,
