@@ -93,7 +93,9 @@ python -m pip install -e ".[dev,interactive,export]"
 请根据希望回答的问题选择视图：
 
 1. Plotly surface 是**首选的交互式解剖视图**。它保留 surface-RAS 几何，
-   可以自由旋转，并可用于判断连接位于皮层前方还是后方。
+   可以自由旋转，并可用于判断连接位于皮层前方还是后方。节点与连接由
+   `Mesh3d` 球体和管体组成真正的三维 ball-and-stick 网络，而不是屏幕空间中
+   大小不随透视变化的圆点和线条。
 2. 在具有有效 MNI 坐标时，Nilearn 玻璃脑是**首选的静态连接概览**。它不受
    皮层遮挡影响，最便于比较完整的全脑连接图。
 3. Matplotlib 和原生 Nilearn surface 是**补充性的固定视角解剖背景**。
@@ -566,7 +568,8 @@ HTML 默认嵌入 JavaScript，因此可以离线打开。`image_width`、`image
 `image_scale` 控制 Plotly 静态导出，但不会改变交互数据。Plotly 静态输出默认
 为一个双列拼图，其中包含 `left`、`right`、`dorsal` 和 `ventral` 场景；可以用
 `static_views` 自定义顺序，或传入 `static_views=None`，只导出单个交互式 `view`
-相机。
+相机。对于该后端，`node_size_range` 与 `edge_width_range` 控制物理直径，单位为毫米；
+因此旋转相机或改变透视时，球体与管体的视觉大小会自然变化。
 
 两个交互式输出回答不同的问题。Plotly `surface` 后端保留皮层解剖结构并支持
 显式逐顶点 overlay；原生 Nilearn `html` 后端调用 `view_connectome`，由于没有
@@ -683,5 +686,6 @@ MNE_DONTWRITE_HOME=true MPLCONFIGDIR=/private/tmp/pyconnviz-mpl \
 Matplotlib 和原生 Nilearn 的连接是三维线条，而不是真实管道。它们随视角变化的
 alpha 只是光学深度提示，并不会执行真实的网格遮挡，也不得被解释为额外的数据
 变量。单半球面板会省略跨半球连接，全脑面板则包含这些连接。Plotly 每条连接
-使用一个 trace，因此大型连接集合会生成较大的 HTML 文件。首个版本专注于皮层
-ROI，尚不提供完整的混合源或皮层下 surface 渲染。
+不再单独使用一个 trace，而是将节点与连接合并为两个 `Mesh3d` trace；但管体
+几何量仍会随边数和 `edge_samples` 增长，因此稠密网络会生成较大的 HTML 文件。
+首个版本专注于皮层 ROI，尚不提供完整的混合源或皮层下 surface 渲染。

@@ -96,6 +96,24 @@ def test_readmes_document_installation_from_pypi(
     )
 
 
+@pytest.mark.parametrize(
+    ("filename", "physical_size_text"),
+    (
+        ("README.md", "physical diameters in millimetres"),
+        ("README.zh-CN.md", "物理直径，单位为毫米"),  # noqa: RUF001
+    ),
+)
+def test_readmes_document_true_3d_plotly_ball_and_stick(
+    filename: str,
+    physical_size_text: str,
+) -> None:
+    readme = (ROOT / filename).read_text(encoding="utf-8")
+
+    assert "ball-and-stick" in readme
+    assert "Mesh3d" in readme
+    assert physical_size_text in readme
+
+
 def test_readme_has_quickstart_gallery_all_backends_and_release_commands() -> None:
     readme = (ROOT / "README.md").read_text(encoding="utf-8")
 

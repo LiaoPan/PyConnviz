@@ -56,9 +56,15 @@ def write_valid_fixture(root: Path) -> None:
         '<svg xmlns="http://www.w3.org/2000/svg"><circle r="2"/></svg>',
         encoding="utf-8",
     )
-    html = "<html><body><script>Plotly.newPlot('x', [])</script></body></html>"
-    (root / "surface_interactive.html").write_text(html, encoding="utf-8")
-    (root / "nilearn_connectome.html").write_text(html, encoding="utf-8")
+    plotly_html = (
+        '<html><body><script>Plotly.newPlot("x", '
+        '[{"name":"Nodes"},{"name":"Edges"}], '
+        '{"meta":{"render_mode":"ball-and-stick"}})'
+        "</script></body></html>"
+    )
+    generic_html = "<html><body><script>Plotly.newPlot('x', [])</script></body></html>"
+    (root / "surface_interactive.html").write_text(plotly_html, encoding="utf-8")
+    (root / "nilearn_connectome.html").write_text(generic_html, encoding="utf-8")
     edges = [[0, 1, 0.5], [1, 2, -0.2]]
     (root / "edge_manifest.json").write_text(
         json.dumps(
@@ -147,6 +153,20 @@ def test_checker_accepts_nilearn_iframe_srcdoc_html(tmp_path: Path) -> None:
     )
     report = check_artifacts(root, strict=False)
     assert report["files_checked"] == len(REQUIRED)
+
+
+def test_checker_requires_ball_and_stick_contract_for_plotly_surface_html(
+    tmp_path: Path,
+) -> None:
+    root = tmp_path / "screen-space-plotly"
+    write_valid_fixture(root)
+    (root / "surface_interactive.html").write_text(
+        "<html><body><script>Plotly.newPlot('x', [])</script></body></html>",
+        encoding="utf-8",
+    )
+
+    with pytest.raises(AcceptanceError, match="ball-and-stick"):
+        check_artifacts(root, strict=False)
 
 
 def test_acceptance_geometry_is_bundled_fsaverage5_and_deterministic() -> None:

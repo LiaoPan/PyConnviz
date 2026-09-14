@@ -71,7 +71,7 @@ def _check_svg(path: Path) -> None:
         raise AcceptanceError(f"{path.name} root element is not SVG")
 
 
-def _check_html(path: Path) -> None:
+def _check_html(path: Path, *, require_ball_stick: bool = False) -> None:
     content = path.read_text(encoding="utf-8", errors="replace").lower()
     full_document = "<html" in content and "<body" in content
     nilearn_iframe = (
@@ -84,6 +84,14 @@ def _check_html(path: Path) -> None:
         raise AcceptanceError(f"{path.name} has no valid HTML/body structure")
     if "plotly" not in content and "nilearn" not in content and "connectome" not in content:
         raise AcceptanceError(f"{path.name} does not contain a Plotly/Nilearn connectome")
+    if require_ball_stick:
+        compact = "".join(content.split())
+        required = ('"name":"nodes"', '"name":"edges"', '"render_mode":"ball-and-stick"')
+        missing = [token for token in required if token not in compact]
+        if missing:
+            raise AcceptanceError(
+                f"{path.name} is missing the true 3D ball-and-stick contract: {missing}"
+            )
 
 
 def _canonical_edges(edges: Any) -> list[tuple[int, int, float]]:
@@ -193,7 +201,10 @@ def check_artifacts(directory: str | Path, *, strict: bool = True) -> dict[str, 
     for name in SVG_FILES:
         _check_svg(root / name)
     for name in HTML_FILES:
-        _check_html(root / name)
+        _check_html(
+            root / name,
+            require_ball_stick=name == "surface_interactive.html",
+        )
     edge_count = _check_manifest(root / "edge_manifest.json")
     _check_environment(root / "environment.txt")
     benchmark = _check_benchmark(root / "benchmark.json", strict=strict)

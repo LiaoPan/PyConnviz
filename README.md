@@ -98,7 +98,9 @@ Choose the view for the question being answered:
 
 1. The Plotly surface is the **primary interactive anatomical view**. It keeps
    surface-RAS geometry, rotates freely, and lets you inspect whether an edge
-   lies in front of or behind the cortex.
+   lies in front of or behind the cortex. Nodes and edges are a true-3D
+   ball-and-stick network built from `Mesh3d` spheres and tubes, rather than
+   screen-space markers and lines.
 2. The Nilearn glass brain is the **primary static connectivity overview**
    when valid MNI coordinates are available. It avoids cortical occlusion and
    makes the complete whole-brain graph easiest to compare.
@@ -599,7 +601,10 @@ Plotly HTML uses embedded JavaScript by default so it can be opened offline.
 without changing the interactive data. Static Plotly output defaults to one
 two-column montage containing `left`, `right`, `dorsal`, and `ventral` scenes;
 customize that order with `static_views`, or pass `static_views=None` to export
-only the singular interactive `view` camera.
+only the singular interactive `view` camera. For this backend,
+`node_size_range` and `edge_width_range` set physical diameters in millimetres;
+perspective and camera rotation therefore change the apparent size of the
+spheres and tubes naturally.
 
 The two interactive outputs answer different questions. The Plotly `surface`
 backend preserves cortical anatomy and supports explicit per-vertex overlays;
@@ -735,6 +740,8 @@ Matplotlib and native Nilearn edges are 3D lines rather than physical tubes.
 Their view-dependent alpha is an optical depth cue only; it does not perform
 physical mesh occlusion and must not be interpreted as an additional data
 variable. Single-hemisphere panels omit cross-hemisphere edges; whole-brain
-panels include them. Plotly uses one trace per edge and large edge sets produce
-large HTML files. The first release focuses on cortical ROIs and does not
-provide complete mixed-source or subcortical surface rendering.
+panels include them. Plotly merges nodes and connections into two `Mesh3d`
+traces, but dense graphs still produce large HTML files because tube geometry
+grows with the edge count and `edge_samples`. The first release focuses on
+cortical ROIs and does not provide complete mixed-source or subcortical
+surface rendering.
