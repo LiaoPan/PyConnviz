@@ -48,7 +48,7 @@ Kaleido, Pillow.
 - Produces `tube_mesh(points, radius, *, sides)`.
 - Produces `merge_meshes(meshes)`.
 
-- [ ] **Step 1: Add sphere and merge RED tests**
+- [x] **Step 1: Add sphere and merge RED tests**
 
 Create tests that assert a sphere centered at `[1, 2, 3]` with radius `2`
 has `2 + (latitude_steps - 1) * longitude_steps` vertices,
@@ -57,7 +57,7 @@ units from the center, valid face indices, and no zero-area face. Assert that
 merging two meshes offsets every face in the second mesh by the first mesh's
 vertex count.
 
-- [ ] **Step 2: Verify sphere/merge RED**
+- [x] **Step 2: Verify sphere/merge RED**
 
 Run:
 
@@ -67,7 +67,7 @@ Run:
 
 Expected: collection fails because `_plotly_primitives` does not exist.
 
-- [ ] **Step 3: Implement `TriangleMesh`, `sphere_mesh`, and `merge_meshes`**
+- [x] **Step 3: Implement `TriangleMesh`, `sphere_mesh`, and `merge_meshes`**
 
 Use unique north/south poles and longitude rings for the sphere. Use outward
 winding `(north, current, next)`, `(a, b, c)`, `(a, c, d)`, and
@@ -75,12 +75,12 @@ winding `(north, current, next)`, `(a, b, c)`, `(a, c, d)`, and
 radii, `latitude_steps >= 3`, `longitude_steps >= 3`, mesh shapes, and face
 index ranges. An empty merge returns `(0, 3)` arrays of the declared dtypes.
 
-- [ ] **Step 4: Verify sphere/merge GREEN**
+- [x] **Step 4: Verify sphere/merge GREEN**
 
 Run the primitive tests and Ruff for the new files. Expected: all added tests
 pass and Ruff reports no issues.
 
-- [ ] **Step 5: Add tube RED tests**
+- [x] **Step 5: Add tube RED tests**
 
 For a straight three-point centerline on the z axis, assert every ring has the
 requested radial distance, each ring center equals the source point, face
@@ -88,14 +88,14 @@ indices are valid, and outward face normals have positive dot product with the
 radial direction. Parameterize invalid input checks for a single point,
 duplicate consecutive points, non-positive radius, and fewer than three sides.
 
-- [ ] **Step 6: Implement parallel-transport `tube_mesh` and verify GREEN**
+- [x] **Step 6: Implement parallel-transport `tube_mesh` and verify GREEN**
 
 Use normalized endpoint/central tangents. Choose the axis least aligned with
 the first tangent, then project the previous frame normal into each following
 tangent plane. Emit `sides` vertices per ring and two outward triangles per
 quad. Run all primitive tests plus Ruff.
 
-- [ ] **Step 7: Commit the primitive layer**
+- [x] **Step 7: Commit the primitive layer**
 
 Stage only the new module and its test, then commit:
 
@@ -120,7 +120,7 @@ git commit -m "feat: add deterministic 3D mesh primitives"
 - Adds trace `meta.diameters`, `meta.vertex_counts`, and figure-level
   `meta.render_mode`, `meta.network_vertices`, `meta.network_triangles`.
 
-- [ ] **Step 1: Replace node/edge trace assertions with RED mesh assertions**
+- [x] **Step 1: Replace node/edge trace assertions with RED mesh assertions**
 
 Update the coordinate, colormap, and HTML tests to require:
 
@@ -139,7 +139,7 @@ assert figure.layout.meta["render_mode"] == "ball-and-stick"
 Check that node and edge hover arrays contain every expected name/direction,
 and that `meta.diameters` equals the output of existing `scale_values` calls.
 
-- [ ] **Step 2: Verify renderer RED**
+- [x] **Step 2: Verify renderer RED**
 
 Run:
 
@@ -150,7 +150,7 @@ Run:
 Expected: failures show `Nodes` and `Edge ...` are still `scatter3d` and no
 `Edges` mesh exists.
 
-- [ ] **Step 3: Add mesh assembly helpers in `surface_plotly.py`**
+- [x] **Step 3: Add mesh assembly helpers in `surface_plotly.py`**
 
 Add constants for resolution and two lighting dictionaries. Add helpers to:
 
@@ -163,7 +163,7 @@ Node radius is scaled diameter divided by two. Tube radius is scaled edge width
 divided by two. Use existing Bezier paths without changing their samples or
 scientific edge order.
 
-- [ ] **Step 4: Replace `Scatter3d` construction with `Mesh3d`**
+- [x] **Step 4: Replace `Scatter3d` construction with `Mesh3d`**
 
 Create `Edges` before `Nodes`. Set explicit triangle indices,
 `flatshading=False`, lighting and light position. Use repeated node intensity
@@ -171,13 +171,13 @@ with `colorscale`, `cmin`, `cmax`, `showscale=True`, and the “Node value”
 colorbar. Use repeated resolved hex edge colors as `vertexcolor`. Retain the
 existing hover template and set both network traces to `showlegend=False`.
 
-- [ ] **Step 5: Update warning and metadata**
+- [x] **Step 5: Update warning and metadata**
 
 Change the many-edge warning to describe generated tube geometry rather than
 individual traces. Record `render_mode="ball-and-stick"`, edge count, directed
 state, and merged network vertex/triangle counts in layout metadata.
 
-- [ ] **Step 6: Verify renderer GREEN**
+- [x] **Step 6: Verify renderer GREEN**
 
 Run the Plotly and public API tests plus Ruff:
 
@@ -186,7 +186,7 @@ Run the Plotly and public API tests plus Ruff:
 .venv/bin/python -m ruff check src/pyconnviz/plotting/_plotly_primitives.py src/pyconnviz/plotting/surface_plotly.py tests/test_plotly_primitives.py tests/test_surface_plotly.py
 ```
 
-- [ ] **Step 7: Commit the mesh renderer**
+- [x] **Step 7: Commit the mesh renderer**
 
 Stage only the Plotly renderer and Plotly tests, then commit:
 
@@ -208,29 +208,29 @@ git commit -m "feat: render Plotly connectomes as 3D ball-and-stick meshes"
 - Produces an optional `Directions` Plotly `Cone` trace.
 - Preserves one node colorbar across all static montage panels.
 
-- [ ] **Step 1: Add directed-arrow and montage RED tests**
+- [x] **Step 1: Add directed-arrow RED test and retain the montage contract**
 
 Render a directed fixture with `show_arrows=True` and require exactly one
 `cone` trace named `Directions`, no `Direction markers` scatter trace, finite
-tip/vector arrays, and one hover item per prepared edge. Update the montage
-test to inspect `trace.showscale` on `Nodes` mesh copies and require
-`[True, False, False, False]`.
+tip/vector arrays, and one hover item per prepared edge. The montage test was
+updated in Task 2 because Mesh3d nodes require `trace.showscale` immediately;
+it requires `[True, False, False, False]`.
 
-- [ ] **Step 2: Verify RED**
+- [x] **Step 2: Verify RED**
 
-Run the two focused tests. Expected: the direction trace is still a
-`scatter3d` marker and montage handling attempts `trace.marker.showscale`.
+Run the focused direction test. Expected: the direction trace is still a
+`scatter3d` marker and no `Directions` cone exists.
 
-- [ ] **Step 3: Implement 3D cones and generalized colorbar cloning**
+- [x] **Step 3: Implement 3D cones and retain generalized colorbar cloning**
 
 Normalize each final Bezier tangent. Place each cone tip on the incoming side
 of its target sphere with
 `tip = target_center - tangent * target_radius`. Create one `Cone` trace using
 `anchor="tip"`, `sizemode="absolute"`, a constant black colorscale, no scale,
-and retained hover text. In `_build_static_montage`, set
+and retained hover text. `_build_static_montage` already sets
 `copied_trace.showscale = index == 0` only for the `Nodes` trace.
 
-- [ ] **Step 4: Verify GREEN and commit**
+- [x] **Step 4: Verify GREEN and commit**
 
 Run the complete Plotly test file and Ruff, then commit only the renderer and
 test changes:
@@ -258,7 +258,7 @@ git commit -m "feat: add true 3D Plotly direction cones"
 - The checker audits Plotly HTML for the ball-and-stick trace contract.
 - The gallery displays the regenerated four-view image.
 
-- [ ] **Step 1: Add documentation and artifact-contract RED tests**
+- [x] **Step 1: Add documentation and artifact-contract RED tests**
 
 Require both README files to contain “ball-and-stick”, `Mesh3d`, and the phrase
 describing millimetre node/tube diameters. Extend HTML checking for
@@ -266,26 +266,26 @@ describing millimetre node/tube diameters. Extend HTML checking for
 `Edges` plus `"render_mode":"ball-and-stick"`. Update the valid synthetic
 fixture to include those exact JSON tokens.
 
-- [ ] **Step 2: Verify RED**
+- [x] **Step 2: Verify RED**
 
 Run packaging and acceptance-script tests. Expected: README assertions fail and
 the current generated HTML lacks `render_mode`.
 
-- [ ] **Step 3: Update both READMEs**
+- [x] **Step 3: Update both READMEs**
 
 Describe that Plotly is the true-3D BrainNet-style backend: node spheres have
 physical diameter mapped from node values, tubes have physical diameter mapped
 from absolute connection weight, and lighting/occlusion respond to camera
 rotation. Keep all fenced code blocks byte-identical across languages.
 
-- [ ] **Step 4: Extend the acceptance checker**
+- [x] **Step 4: Extend the acceptance checker**
 
 Make `_check_html` accept `require_ball_stick: bool = False`. Pass `True` only
 for `surface_interactive.html`; when enabled, require lowercase tokens
 `"name":"nodes"`, `"name":"edges"`, and
 `"render_mode":"ball-and-stick"` after whitespace-insensitive normalization.
 
-- [ ] **Step 5: Generate and inspect the Plotly artifacts**
+- [x] **Step 5: Generate and inspect the Plotly artifacts**
 
 Run the deterministic acceptance generator in a fresh temporary output
 directory, run the strict checker, and inspect the full-resolution
@@ -294,7 +294,7 @@ directory, run the strict checker, and inspect the full-resolution
 image is 1400 x 1000 and visibly shows shaded spheres and tubes in all four
 views.
 
-- [ ] **Step 6: Verify docs and commit**
+- [x] **Step 6: Verify docs and commit**
 
 Run packaging and acceptance tests, Ruff, and `git diff --check`. Stage only
 the two READMEs, checker/tests, and verified gallery image, then commit:
@@ -311,7 +311,7 @@ git commit -m "docs: show true 3D Plotly ball-and-stick output"
 
 - Modify: `docs/superpowers/plans/2026-09-14-plotly-ball-stick.md`
 
-- [ ] **Step 1: Run code quality gates**
+- [x] **Step 1: Run code quality gates**
 
 ```bash
 .venv/bin/python -m compileall -q src tests examples scripts
@@ -319,7 +319,7 @@ git commit -m "docs: show true 3D Plotly ball-and-stick output"
 git diff --check
 ```
 
-- [ ] **Step 2: Run the full CI-equivalent suite**
+- [x] **Step 2: Run the full CI-equivalent suite**
 
 ```bash
 MNE_DONTWRITE_HOME=true MPLBACKEND=Agg MPLCONFIGDIR=/private/tmp/pyconnviz-mpl \
@@ -329,14 +329,14 @@ MNE_DONTWRITE_HOME=true MPLBACKEND=Agg MPLCONFIGDIR=/private/tmp/pyconnviz-mpl \
 
 Expected: zero failures and coverage at least 80%.
 
-- [ ] **Step 3: Build and inspect clean distributions**
+- [x] **Step 3: Build and inspect clean distributions**
 
 Build wheel and sdist into a fresh `/private/tmp` directory with
 `python -m build`, run `twine check` on both exact files, verify the wheel
 contains `_plotly_primitives.py`, and verify the sdist contains the new module,
 its test, both READMEs, and the updated gallery image.
 
-- [ ] **Step 4: Record verification and commit the completed plan**
+- [x] **Step 4: Record verification and commit the completed plan**
 
 Record exact test count, coverage, artifact names, visual dimensions, and
 unchanged user-owned files in this plan. Commit only the plan:
@@ -345,8 +345,27 @@ unchanged user-owned files in this plan. Commit only the plan:
 git commit -m "docs: record Plotly ball-and-stick verification"
 ```
 
-- [ ] **Step 5: Keep the local branch without pushing**
+- [x] **Step 5: Keep the local branch without pushing**
 
 Report the local commits and final working-tree state. The only permitted
 remaining modifications are the user's pre-existing `.gitignore` and
 `LICENSE` changes.
+
+## Verification Record
+
+- 2026-09-14 code-quality gates: `compileall` completed, Ruff reported
+  `All checks passed!`, and `git diff --check` completed without errors.
+- Full CI-equivalent suite: 289 passed in 133.35 seconds; total coverage was
+  90.87%, exceeding the required 80%.
+- Deterministic acceptance output: strict checker inspected 14 files and 40
+  consistently selected backend edges. The Plotly export used
+  `plotly-kaleido` with no fallback; `surface_interactive.png` was 1400 x 1000
+  pixels and was visually inspected at original resolution for shaded spheres
+  and tubes in left, right, dorsal, and ventral views.
+- Clean distributions: `pyconnviz-0.1.0-py3-none-any.whl` and
+  `pyconnviz-0.1.0.tar.gz`; both passed `twine check`.
+- Wheel inspection confirmed `pyconnviz/plotting/_plotly_primitives.py` and
+  `pyconnviz/plotting/surface_plotly.py`. Sdist inspection confirmed the new
+  module and test, both READMEs, and `docs/images/surface-plotly.png`.
+- The user's pre-existing `.gitignore` and `LICENSE` modifications were not
+  staged or changed by this implementation. No push was performed.
