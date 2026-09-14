@@ -38,6 +38,7 @@ PNG_FILES = (
 )
 SVG_FILES = ("surface_paper.svg", "glass.svg")
 HTML_FILES = ("surface_interactive.html", "nilearn_connectome.html")
+MIN_SMOOTH_SPHERE_TRIANGLES = 2_976
 
 
 class AcceptanceError(RuntimeError):
@@ -148,6 +149,15 @@ def _check_manifest(path: Path) -> int:
         for field in ("node_mesh_triangles", "edge_mesh_triangles"):
             if not isinstance(record.get(field), int) or record[field] <= 0:
                 raise AcceptanceError(f"{name} must contain positive {field}")
+        sphere_triangles = record.get("node_sphere_triangles")
+        if (
+            not isinstance(sphere_triangles, int)
+            or sphere_triangles < MIN_SMOOTH_SPHERE_TRIANGLES
+        ):
+            raise AcceptanceError(
+                f"{name} smooth sphere mesh must contain at least "
+                f"{MIN_SMOOTH_SPHERE_TRIANGLES} triangles per node"
+            )
         diameters = record.get("node_diameter_range")
         if not isinstance(diameters, list) or len(diameters) != 2 or not np.allclose(
             diameters,

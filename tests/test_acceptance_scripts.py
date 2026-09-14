@@ -89,6 +89,7 @@ def write_valid_fixture(root: Path) -> None:
                         "node_collections": 3,
                         "edge_collections": 3,
                         "node_mesh_triangles": 100,
+                        "node_sphere_triangles": 2_976,
                         "edge_mesh_triangles": 100,
                         "node_diameter_range": [6.0, 16.0],
                     },
@@ -99,6 +100,7 @@ def write_valid_fixture(root: Path) -> None:
                         "node_collections": 6,
                         "edge_collections": 6,
                         "node_mesh_triangles": 100,
+                        "node_sphere_triangles": 2_976,
                         "edge_mesh_triangles": 100,
                         "node_diameter_range": [6.0, 16.0],
                     },
@@ -162,6 +164,20 @@ def test_checker_rejects_legacy_static_surface_geometry(tmp_path: Path) -> None:
     path.write_text(json.dumps(manifest), encoding="utf-8")
 
     with pytest.raises(AcceptanceError, match="ball-and-stick"):
+        check_artifacts(root, strict=False)
+
+
+def test_checker_rejects_low_resolution_static_node_spheres(tmp_path: Path) -> None:
+    root = tmp_path / "low-poly-static"
+    write_valid_fixture(root)
+    path = root / "edge_manifest.json"
+    manifest = json.loads(path.read_text(encoding="utf-8"))
+    manifest["static_surface_geometry"]["surface_nilearn"][
+        "node_sphere_triangles"
+    ] = 168
+    path.write_text(json.dumps(manifest), encoding="utf-8")
+
+    with pytest.raises(AcceptanceError, match="smooth sphere"):
         check_artifacts(root, strict=False)
 
 

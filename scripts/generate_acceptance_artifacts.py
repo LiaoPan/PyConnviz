@@ -48,13 +48,20 @@ def _static_geometry_audit(result: object, *, renderer: str) -> dict[str, object
     if len(nodes) != len(axes) or len(edges) != len(axes):
         raise RuntimeError("static surface panels must contain one node and edge mesh")
     node_diameters = np.concatenate([collection.diameters for collection in nodes])
+    node_mesh_triangles = sum(
+        collection.mesh_triangle_count for collection in nodes
+    )
+    node_part_count = sum(len(collection.diameters) for collection in nodes)
+    if node_part_count <= 0 or node_mesh_triangles % node_part_count:
+        raise RuntimeError("static surface nodes must share one sphere topology")
     return {
         "render_mode": "ball-and-stick",
         "renderer": renderer,
         "panels": len(axes),
         "node_collections": len(nodes),
         "edge_collections": len(edges),
-        "node_mesh_triangles": sum(collection.mesh_triangle_count for collection in nodes),
+        "node_mesh_triangles": node_mesh_triangles,
+        "node_sphere_triangles": node_mesh_triangles // node_part_count,
         "edge_mesh_triangles": sum(collection.mesh_triangle_count for collection in edges),
         "node_diameter_range": [
             float(np.min(node_diameters)),
