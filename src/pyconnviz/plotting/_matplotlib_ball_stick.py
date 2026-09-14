@@ -17,8 +17,8 @@ from ._plotly_primitives import (
     tube_mesh,
 )
 
-_SPHERE_LATITUDE_STEPS = 32
-_SPHERE_LONGITUDE_STEPS = 48
+_SPHERE_LATITUDE_STEPS = 24
+_SPHERE_LONGITUDE_STEPS = 36
 _TUBE_SIDES = 8
 _CONE_SIDES = 8
 _LIGHT_SOURCE = LightSource(azdeg=315, altdeg=45)

@@ -38,7 +38,7 @@ PNG_FILES = (
 )
 SVG_FILES = ("surface_paper.svg", "glass.svg")
 HTML_FILES = ("surface_interactive.html", "nilearn_connectome.html")
-MIN_SMOOTH_SPHERE_TRIANGLES = 2_976
+MIN_SMOOTH_SPHERE_TRIANGLES = 1_656
 
 
 class AcceptanceError(RuntimeError):

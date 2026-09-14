@@ -30,9 +30,9 @@ def test_spheres_are_one_auditable_shaded_poly_collection() -> None:
     assert isinstance(collection, Poly3DCollection)
     assert collection.get_gid() == "pyconnviz-nodes"
     np.testing.assert_allclose(collection.diameters, [2.0, 4.0])
-    assert collection.mesh_vertex_count == 2 * (2 + 31 * 48)
-    assert collection.mesh_triangle_count == 2 * (2 * 48 * 31)
-    assert collection.mesh_triangle_count // len(collection.diameters) == 2_976
+    assert collection.mesh_vertex_count == 2 * (2 + 23 * 36)
+    assert collection.mesh_triangle_count == 2 * (2 * 36 * 23)
+    assert collection.mesh_triangle_count // len(collection.diameters) == 1_656
     assert collection.depth_cue is True
     assert collection.get_zorder() == 12
     np.testing.assert_allclose(

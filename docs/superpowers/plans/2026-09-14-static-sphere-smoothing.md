@@ -4,7 +4,7 @@
 
 **Goal:** Replace visibly faceted static surface nodes with smooth, high-resolution true-3D spheres in both supplementary renderers.
 
-**Architecture:** Keep the shared batched `BallStickCollection` architecture and increase only its sphere primitive resolution from 8-by-12 to 32-by-48. Extend the generated geometry manifest with a per-node sphere triangle count so the acceptance checker can reject low-poly regressions independently of the number of panels or nodes.
+**Architecture:** Keep the shared batched `BallStickCollection` architecture and increase only its sphere primitive resolution from 8-by-12 to 24-by-36. Extend the generated geometry manifest with a per-node sphere triangle count so the acceptance checker can reject low-poly regressions independently of the number of panels or nodes.
 
 **Tech Stack:** Python 3.10+, NumPy, Matplotlib `Poly3DCollection`, Nilearn, pytest, Pillow, build, Twine
 
@@ -12,7 +12,7 @@
 
 - Static node coordinates, physical diameters, colours, and depth cueing remain unchanged.
 - Edge tubes, direction cones, cortex settings, views, and the Plotly renderer remain unchanged.
-- Every static node sphere has exactly 2,976 triangular faces (32 latitude steps by 48 longitude steps).
+- Every static node sphere has exactly 1,656 triangular faces (24 latitude steps by 36 longitude steps).
 - Matplotlib three-view and native Nilearn six-view outputs remain deterministic true-3D ball-and-stick figures.
 - Work inline without subagents; local commits are allowed, but never push.
 
@@ -26,16 +26,16 @@
 
 **Interfaces:**
 - Consumes: `sphere_mesh(center, radius, *, latitude_steps, longitude_steps) -> TriangleMesh`
-- Produces: `sphere_collection(...) -> BallStickCollection | None` with 2,976 triangles per sphere
+- Produces: `sphere_collection(...) -> BallStickCollection | None` with 1,656 triangles per sphere
 
 - [ ] **Step 1: Write the failing topology regression test**
 
 Change the node collection assertions to:
 
 ```python
-assert collection.mesh_vertex_count == 2 * (2 + 31 * 48)
-assert collection.mesh_triangle_count == 2 * (2 * 48 * 31)
-assert collection.mesh_triangle_count // len(collection.diameters) == 2_976
+assert collection.mesh_vertex_count == 2 * (2 + 23 * 36)
+assert collection.mesh_triangle_count == 2 * (2 * 36 * 23)
+assert collection.mesh_triangle_count // len(collection.diameters) == 1_656
 ```
 
 - [ ] **Step 2: Run the focused test and confirm the red state**
@@ -54,8 +54,8 @@ Expected: failure because the current collection contains 172 vertices and 336 t
 Set:
 
 ```python
-_SPHERE_LATITUDE_STEPS = 32
-_SPHERE_LONGITUDE_STEPS = 48
+_SPHERE_LATITUDE_STEPS = 24
+_SPHERE_LONGITUDE_STEPS = 36
 ```
 
 Do not change tube or cone side counts.
@@ -94,7 +94,7 @@ git commit -m "fix: smooth static surface node spheres"
 
 - [ ] **Step 1: Add a valid fixture field and a low-resolution rejection test**
 
-Add `"node_sphere_triangles": 2976` to each static renderer fixture record and add:
+Add `"node_sphere_triangles": 1656` to each static renderer fixture record and add:
 
 ```python
 def test_checker_rejects_low_resolution_static_node_spheres(tmp_path: Path) -> None:
@@ -131,7 +131,7 @@ collection diameters, ensure it is positive, and return:
 "node_sphere_triangles": node_mesh_triangles // node_part_count,
 ```
 
-In `_check_manifest`, require an integer value of at least `2_976`; otherwise
+In `_check_manifest`, require an integer value of at least `1_656`; otherwise
 raise an `AcceptanceError` whose message contains `smooth sphere`.
 
 - [ ] **Step 4: Verify acceptance audit tests**
@@ -189,7 +189,7 @@ MPLCONFIGDIR=/private/tmp/pyconnviz-mpl .venv/bin/python \
 ```
 
 Expected: the strict checker passes and both static records contain
-`"node_sphere_triangles": 2976`.
+`"node_sphere_triangles": 1656`.
 
 - [ ] **Step 3: Regenerate the cached real-MSDL surface case**
 
