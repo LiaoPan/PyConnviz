@@ -30,6 +30,39 @@ from pyconnviz import (
 from pyconnviz.plotting.surface_nilearn import freesurfer_surface_paths
 
 
+def _static_geometry_audit(result: object, *, renderer: str) -> dict[str, object]:
+    figure = result.artist
+    axes = [axis for axis in figure.axes if getattr(axis, "name", None) == "3d"]
+    nodes = [
+        collection
+        for axis in axes
+        for collection in axis.collections
+        if collection.get_gid() == "pyconnviz-nodes"
+    ]
+    edges = [
+        collection
+        for axis in axes
+        for collection in axis.collections
+        if collection.get_gid() == "pyconnviz-edges"
+    ]
+    if len(nodes) != len(axes) or len(edges) != len(axes):
+        raise RuntimeError("static surface panels must contain one node and edge mesh")
+    node_diameters = np.concatenate([collection.diameters for collection in nodes])
+    return {
+        "render_mode": "ball-and-stick",
+        "renderer": renderer,
+        "panels": len(axes),
+        "node_collections": len(nodes),
+        "edge_collections": len(edges),
+        "node_mesh_triangles": sum(collection.mesh_triangle_count for collection in nodes),
+        "edge_mesh_triangles": sum(collection.mesh_triangle_count for collection in edges),
+        "node_diameter_range": [
+            float(np.min(node_diameters)),
+            float(np.max(node_diameters)),
+        ],
+    }
+
+
 def _farthest_vertices(coordinates: np.ndarray, count: int) -> np.ndarray:
     """Select deterministic, spatially distributed vertices."""
 
@@ -394,6 +427,16 @@ def generate_artifacts(outdir: str | Path) -> dict[str, object]:
     )
     manifest = {
         "backends": {name: _edge_tuples(result) for name, result in results.items()},
+        "static_surface_geometry": {
+            "surface_matplotlib": _static_geometry_audit(
+                results["surface_matplotlib"],
+                renderer="matplotlib-poly3d",
+            ),
+            "surface_nilearn": _static_geometry_audit(
+                results["surface_nilearn"],
+                renderer="nilearn-plot-img-on-surf+matplotlib-poly3d",
+            ),
+        },
         "surface_interactive_static_export": static_export,
         "directed_case": {
             "directed": directed.directed,

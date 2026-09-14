@@ -1269,7 +1269,7 @@ def run_surface_case(
         views="paper",
         node_overlay="none",
         depth_cue=True,
-        title="MSDL connectivity — translucent depth-aware pial context",
+        title="MSDL connectivity — true-3D ball-and-stick pial context",
         figsize=(13.0, 5.0),
         dpi=140,
         rasterize_surface=True,
@@ -1290,7 +1290,7 @@ def run_surface_case(
         symmetric_cbar="auto",
         inflate=False,
         depth_cue=True,
-        title="MSDL connectivity — translucent native Nilearn context",
+        title="MSDL connectivity — true-3D native Nilearn context",
         figsize=(10.0, 12.0),
         dpi=120,
         rasterize_surface=True,
@@ -1318,8 +1318,8 @@ def run_surface_case(
     make_labeled_montage(
         (matplotlib_png, native_png),
         (
-            "PyConnviz depth-aware context - 3 views",
-            "PyConnviz + Nilearn translucent context - 6 panels",
+            "PyConnviz true-3D ball-and-stick - 3 views",
+            "PyConnviz + Nilearn true-3D ball-and-stick - 6 panels",
         ),
         comparison_png,
         columns=1,

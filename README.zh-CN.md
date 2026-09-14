@@ -38,7 +38,7 @@ PyConnviz 不计算功能连接、不进行源定位或统计检验、不替用�
   </thead>
   <tbody>
     <tr>
-      <td><img src="docs/images/surface-matplotlib.png" width="100%" alt="包含左右外侧与全脑背侧视图的 PyConnviz 深度感知 Matplotlib surface 连接组"></td>
+      <td><img src="docs/images/surface-matplotlib.png" width="100%" alt="包含左右外侧与全脑背侧视图的 PyConnviz 真三维 Matplotlib 球棍 surface 连接组"></td>
     </tr>
   </tbody>
 </table>
@@ -51,7 +51,7 @@ PyConnviz 不计算功能连接、不进行源定位或统计检验、不替用�
   </thead>
   <tbody>
     <tr>
-      <td><img src="docs/images/surface-nilearn.png" width="100%" alt="包含外侧、内侧和背侧视图的 PyConnviz 半透明原生 Nilearn surface 连接组"></td>
+      <td><img src="docs/images/surface-nilearn.png" width="100%" alt="包含外侧、内侧和背侧视图的 PyConnviz 真三维原生 Nilearn 球棍 surface 连接组"></td>
     </tr>
   </tbody>
 </table>
@@ -99,8 +99,9 @@ python -m pip install -e ".[dev,interactive,export]"
 2. 在具有有效 MNI 坐标时，Nilearn 玻璃脑是**首选的静态连接概览**。它不受
    皮层遮挡影响，最便于比较完整的全脑连接图。
 3. Matplotlib 和原生 Nilearn surface 是**补充性的固定视角解剖背景**。
-   半透明皮层与相机深度 alpha 提示能够改善空间判读，但固定的二维投影并非
-   真实的三维管状渲染，也不能替代可旋转的 Plotly 视图。
+   Matplotlib 和原生 Nilearn 使用真正的三维 ball-and-stick
+   `Poly3DCollection` 几何：带光照的球体与管体在各视角中保持物理尺寸，半透明
+   皮层则保证内部连接可见。固定投影仍作为可旋转 Plotly 视图的补充。
 
 对应调用按推荐顺序如下：
 
@@ -486,14 +487,13 @@ Matplotlib surface 引擎支持 `views="paper"`、`views="four"` 和 `views="who
 `paper / soft / dark` 分别为 `0.24 / 0.20 / 0.32`。Matplotlib 和原生 Nilearn
 使用更加透明的固定视角静态默认值 `0.08 / 0.08 / 0.18`，使内部连接能在固定
 投影中保持可见。它们也使用渲染器专属的默认连接可见性预算：paper 的 alpha
-为 `0.95`、线宽范围为 `1.4–5.4 pt`、投影深度因子下限为 `0.70`。显式传入
-`edge_alpha`、`edge_width_range` 或 `cortex_alpha` 时始终优先于这些视觉默认值。
+为 `0.95`、管体直径范围为 `1.4–5.4 mm`；静态节点球体的默认直径范围为
+`6–16 mm`。显式传入 `edge_alpha`、`edge_width_range`、`node_size_range` 或
+`cortex_alpha` 时始终优先于这些视觉默认值。
 
-两个固定视角引擎都默认启用 `depth_cue=True`：每条已准备曲线会被分割为多个
-显示线段，只有 alpha 会随投影后的相机深度变化。较近线段更强，较远线段更淡，
-但提高后的下限可以避免有效连接在 README 缩略图尺度下消失。连接颜色仍编码
-符号或幅值，连接宽度仍编码绝对权重，并且每个面板都保留其完整的半球范围连接
-集合。设置 `depth_cue=False` 可使用统一线条透明度。
+两个固定视角引擎都默认启用 `depth_cue=True`，对实体球体和管体三角面使用
+确定性的表面光照。alpha 不再随投影深度变化，因此透明度不会编码额外数据变量。
+设置 `depth_cue=False` 只关闭三角面光照，不会退回屏幕空间圆点或线条。
 
 ## 坐标约定：surface-RAS 与 MNI
 
@@ -683,9 +683,8 @@ MNE_DONTWRITE_HOME=true MPLCONFIGDIR=/private/tmp/pyconnviz-mpl \
 
 ## v0.1 已知限制
 
-Matplotlib 和原生 Nilearn 的连接是三维线条，而不是真实管道。它们随视角变化的
-alpha 只是光学深度提示，并不会执行真实的网格遮挡，也不得被解释为额外的数据
-变量。单半球面板会省略跨半球连接，全脑面板则包含这些连接。Plotly 每条连接
-不再单独使用一个 trace，而是将节点与连接合并为两个 `Mesh3d` trace；但管体
-几何量仍会随边数和 `edge_samples` 增长，因此稠密网络会生成较大的 HTML 文件。
-首个版本专注于皮层 ROI，尚不提供完整的混合源或皮层下 surface 渲染。
+Matplotlib 和原生 Nilearn 现在使用实体三角网格，但结果仍是固定投影；Matplotlib
+使用集合级画家排序，而非交互式 WebGL 遮挡。单半球面板会省略跨半球连接，全脑
+面板则包含这些连接。所有 surface 引擎的管体几何量都会随边数和 `edge_samples`
+增长，因此稠密网络会生成更大的文件。首个版本专注于皮层 ROI，尚不提供完整的
+混合源或皮层下 surface 渲染。

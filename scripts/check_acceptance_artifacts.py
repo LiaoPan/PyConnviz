@@ -126,6 +126,34 @@ def _check_manifest(path: Path) -> int:
             raise AcceptanceError(
                 f"Prepared edge tuples differ between surface_matplotlib and {name}"
             )
+    static_geometry = manifest.get("static_surface_geometry", {})
+    expected_static = {
+        "surface_matplotlib": ("matplotlib-poly3d", 3),
+        "surface_nilearn": ("nilearn-plot-img-on-surf+matplotlib-poly3d", 6),
+    }
+    if set(static_geometry) != set(expected_static):
+        raise AcceptanceError("static surface geometry records are incomplete")
+    for name, (renderer, panels) in expected_static.items():
+        record = static_geometry[name]
+        if record.get("render_mode") != "ball-and-stick":
+            raise AcceptanceError(f"{name} must record ball-and-stick rendering")
+        if record.get("renderer") != renderer:
+            raise AcceptanceError(f"{name} renderer must be {renderer}")
+        if record.get("panels") != panels:
+            raise AcceptanceError(f"{name} must record {panels} panels")
+        if record.get("node_collections") != panels:
+            raise AcceptanceError(f"{name} must contain one node mesh per panel")
+        if record.get("edge_collections") != panels:
+            raise AcceptanceError(f"{name} must contain one edge mesh per panel")
+        for field in ("node_mesh_triangles", "edge_mesh_triangles"):
+            if not isinstance(record.get(field), int) or record[field] <= 0:
+                raise AcceptanceError(f"{name} must contain positive {field}")
+        diameters = record.get("node_diameter_range")
+        if not isinstance(diameters, list) or len(diameters) != 2 or not np.allclose(
+            diameters,
+            [6.0, 16.0],
+        ):
+            raise AcceptanceError(f"{name} must record the 6-16 mm node diameters")
     directed = manifest.get("directed_case", {})
     directed_edges = _canonical_edges(directed.get("edges", []))
     if directed.get("directed") is not True:

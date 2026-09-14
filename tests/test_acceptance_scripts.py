@@ -81,6 +81,28 @@ def write_valid_fixture(root: Path) -> None:
                     "directed": True,
                     "edges": [[0, 1, 0.8], [1, 0, -0.3]],
                 },
+                "static_surface_geometry": {
+                    "surface_matplotlib": {
+                        "render_mode": "ball-and-stick",
+                        "renderer": "matplotlib-poly3d",
+                        "panels": 3,
+                        "node_collections": 3,
+                        "edge_collections": 3,
+                        "node_mesh_triangles": 100,
+                        "edge_mesh_triangles": 100,
+                        "node_diameter_range": [6.0, 16.0],
+                    },
+                    "surface_nilearn": {
+                        "render_mode": "ball-and-stick",
+                        "renderer": "nilearn-plot-img-on-surf+matplotlib-poly3d",
+                        "panels": 6,
+                        "node_collections": 6,
+                        "edge_collections": 6,
+                        "node_mesh_triangles": 100,
+                        "edge_mesh_triangles": 100,
+                        "node_diameter_range": [6.0, 16.0],
+                    },
+                },
             }
         ),
         encoding="utf-8",
@@ -126,6 +148,20 @@ def test_checker_rejects_cross_backend_edge_mismatch(tmp_path: Path) -> None:
     manifest["backends"]["circle"] = [[0, 1, 9.0]]
     path.write_text(json.dumps(manifest), encoding="utf-8")
     with pytest.raises(AcceptanceError, match="edge tuples differ"):
+        check_artifacts(root, strict=False)
+
+
+def test_checker_rejects_legacy_static_surface_geometry(tmp_path: Path) -> None:
+    root = tmp_path / "legacy-static"
+    write_valid_fixture(root)
+    path = root / "edge_manifest.json"
+    manifest = json.loads(path.read_text(encoding="utf-8"))
+    manifest["static_surface_geometry"]["surface_matplotlib"]["render_mode"] = (
+        "screen-space"
+    )
+    path.write_text(json.dumps(manifest), encoding="utf-8")
+
+    with pytest.raises(AcceptanceError, match="ball-and-stick"):
         check_artifacts(root, strict=False)
 
 

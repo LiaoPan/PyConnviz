@@ -40,7 +40,7 @@ use real MSDL connectivity projected to fsaverage.
   </thead>
   <tbody>
     <tr>
-      <td><img src="docs/images/surface-matplotlib.png" width="100%" alt="PyConnviz depth-aware Matplotlib surface connectome with left, right, and dorsal views"></td>
+      <td><img src="docs/images/surface-matplotlib.png" width="100%" alt="PyConnviz true-3D Matplotlib ball-and-stick surface connectome with left, right, and dorsal views"></td>
     </tr>
   </tbody>
 </table>
@@ -53,7 +53,7 @@ use real MSDL connectivity projected to fsaverage.
   </thead>
   <tbody>
     <tr>
-      <td><img src="docs/images/surface-nilearn.png" width="100%" alt="PyConnviz translucent native Nilearn surface connectome with lateral, medial, and dorsal views"></td>
+      <td><img src="docs/images/surface-nilearn.png" width="100%" alt="PyConnviz true-3D native Nilearn ball-and-stick surface connectome with lateral, medial, and dorsal views"></td>
     </tr>
   </tbody>
 </table>
@@ -105,9 +105,11 @@ Choose the view for the question being answered:
    when valid MNI coordinates are available. It avoids cortical occlusion and
    makes the complete whole-brain graph easiest to compare.
 3. Matplotlib and native Nilearn surfaces are **supplementary fixed-view
-   anatomical context**. Their translucent cortex and camera-depth alpha cue
-   improve spatial reading, but a fixed 2D projection is not a physical tube
-   rendering or a substitute for the rotatable Plotly view.
+   anatomical context**. Matplotlib and native Nilearn use true-3D
+   ball-and-stick `Poly3DCollection` geometry: shaded spheres and tubes retain
+   physical dimensions under each camera, while the translucent cortex keeps
+   internal connections visible. Their fixed projections remain supplementary
+   to the rotatable Plotly view.
 
 The corresponding calls, in recommended order, are:
 
@@ -510,14 +512,16 @@ Plotly retains the interactive style defaults (`0.24 / 0.20 / 0.32` for
 `paper / soft / dark`). Matplotlib and native Nilearn use more transparent
 static fixed-view defaults (`0.08 / 0.08 / 0.18`) so internal connections
 survive a fixed projection. Their default edge visibility budgets are also
-renderer-specific: paper uses alpha `0.95`, a `1.4–5.4` point width range, and
-a `0.70` minimum projected-depth factor. Explicit `edge_alpha`,
-`edge_width_range`, and `cortex_alpha` always override these visual defaults.
+renderer-specific: paper uses alpha `0.95` and a `1.4–5.4` mm tube-diameter
+range. Static node spheres default to a `6–16` mm diameter range. Explicit
+`edge_alpha`, `edge_width_range`, `node_size_range`, and `cortex_alpha` always
+override these visual defaults.
 
-Both fixed-view engines default to `depth_cue=True`: each prepared curve is
-divided into display segments and only its alpha is modulated by projected
-camera depth. Nearer segments remain stronger and farther segments become
-fainter, but the raised floor prevents valid edges from disappearing at README
+Both fixed-view engines default to `depth_cue=True`: deterministic face
+lighting is applied to the physical sphere and tube triangles. Their alpha is
+not modulated by projected camera depth, so transparency does not encode an
+additional data variable. Setting `depth_cue=False` disables face lighting
+without returning to screen-space markers or lines.
 thumbnail scale. Edge color still encodes sign/magnitude, edge width still
 encodes absolute weight, and every panel retains its complete
 hemisphere-scoped edge set. Set `depth_cue=False` for uniform line alpha.
@@ -736,12 +740,10 @@ anatomical registration accuracy.
 
 ## Known v0.1 limits
 
-Matplotlib and native Nilearn edges are 3D lines rather than physical tubes.
-Their view-dependent alpha is an optical depth cue only; it does not perform
-physical mesh occlusion and must not be interpreted as an additional data
-variable. Single-hemisphere panels omit cross-hemisphere edges; whole-brain
-panels include them. Plotly merges nodes and connections into two `Mesh3d`
-traces, but dense graphs still produce large HTML files because tube geometry
-grows with the edge count and `edge_samples`. The first release focuses on
-cortical ROIs and does not provide complete mixed-source or subcortical
-surface rendering.
+Matplotlib and native Nilearn now use physical triangle meshes, but their output
+is still a fixed projection and Matplotlib performs collection-level painter
+ordering rather than interactive WebGL occlusion. Single-hemisphere panels
+omit cross-hemisphere edges; whole-brain panels include them. Dense graphs
+produce larger files in every surface engine because tube geometry grows with
+the edge count and `edge_samples`. The first release focuses on cortical ROIs
+and does not provide complete mixed-source or subcortical surface rendering.

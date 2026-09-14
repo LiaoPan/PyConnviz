@@ -114,6 +114,39 @@ def test_readmes_document_true_3d_plotly_ball_and_stick(
     assert physical_size_text in readme
 
 
+@pytest.mark.parametrize(
+    ("filename", "description"),
+    (
+        (
+            "README.md",
+            "Matplotlib and native Nilearn use true-3D ball-and-stick",
+        ),
+        (
+            "README.zh-CN.md",
+            "Matplotlib 和原生 Nilearn 使用真正的三维 ball-and-stick",
+        ),
+    ),
+)
+def test_readmes_document_true_3d_static_surface_geometry(
+    filename: str,
+    description: str,
+) -> None:
+    readme = (ROOT / filename).read_text(encoding="utf-8")
+    normalized = " ".join(readme.split())
+
+    assert description in normalized
+    assert "Poly3DCollection" in readme
+    assert "6\u201316" in readme
+
+
+def test_msdl_gallery_generator_names_true_3d_static_geometry() -> None:
+    source = (ROOT / "scripts" / "upstream_validation.py").read_text(encoding="utf-8")
+
+    assert "MSDL connectivity — true-3D ball-and-stick pial context" in source
+    assert "MSDL connectivity — true-3D native Nilearn context" in source
+    assert "translucent depth-aware pial context" not in source
+
+
 def test_readme_has_quickstart_gallery_all_backends_and_release_commands() -> None:
     readme = (ROOT / "README.md").read_text(encoding="utf-8")
 
