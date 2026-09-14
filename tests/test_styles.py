@@ -35,6 +35,7 @@ def test_builtin_styles_define_translucent_depth_context(
     assert style["depth_cue_min_alpha"] == pytest.approx(depth_minimum)
     assert style["fixed_edge_alpha"] == pytest.approx(fixed_edge_alpha)
     assert style["fixed_edge_width_range"] == pytest.approx(fixed_edge_width_range)
+    assert style["fixed_node_diameter_range"] == pytest.approx([6.0, 16.0])
 
 
 def test_builtin_styles_are_visual_only() -> None:
@@ -45,6 +46,7 @@ def test_builtin_styles_are_visual_only() -> None:
         assert "node_size_range" in style
         assert "edge_width_range" in style
         assert "fixed_edge_width_range" in style
+        assert "fixed_node_diameter_range" in style
         assert style["default_overlay"] == "none"
         assert 0.0 <= style["cortex_alpha"] <= 1.0
         assert 0.0 <= style["fixed_cortex_alpha"] <= 1.0
@@ -52,6 +54,7 @@ def test_builtin_styles_are_visual_only() -> None:
         assert 0.0 <= style["fixed_edge_alpha"] <= 1.0
         assert style["fixed_edge_width_range"][0] > 0.0
         assert style["fixed_edge_width_range"][0] >= 1.3
+        assert style["fixed_node_diameter_range"] == pytest.approx([6.0, 16.0])
         assert (
             style["fixed_edge_width_range"][1]
             >= style["fixed_edge_width_range"][0]

@@ -16,6 +16,7 @@ from pyconnviz.connectivity import prepare_connectome
 from pyconnviz.geometry import geometry_from_arrays
 from pyconnviz.models import Edge, HemisphereMesh, PreparedConnectome, ViewSpec
 from pyconnviz.plotting import _surface_common as surface_common
+from pyconnviz.plotting._matplotlib_ball_stick import BallStickCollection
 from pyconnviz.plotting._surface_common import (
     edge_color_norm,
     quadratic_bezier,
@@ -28,6 +29,14 @@ from pyconnviz.plotting._surface_common import (
 from pyconnviz.plotting.surface_matplotlib import plot_surface_matplotlib
 
 matplotlib.use("Agg", force=True)
+
+
+def _network_collection(axis, gid: str) -> BallStickCollection:
+    return next(
+        item
+        for item in axis.collections
+        if isinstance(item, BallStickCollection) and item.get_gid() == gid
+    )
 
 
 @pytest.mark.parametrize("value", [True, -0.1, 1.1, np.nan, np.inf])
@@ -375,7 +384,7 @@ def test_soft_style_does_not_create_an_implicit_cortical_overlay(
     plt.close(result.artist)
 
 
-def test_matplotlib_static_defaults_keep_depth_cued_edges_legible() -> None:
+def test_matplotlib_static_defaults_use_physical_node_and_edge_diameters() -> None:
     import matplotlib.pyplot as plt
 
     result = plot_surface_matplotlib(
@@ -389,14 +398,14 @@ def test_matplotlib_static_defaults_keep_depth_cued_edges_legible() -> None:
     )
 
     axis = result.artist.axes[0]
-    edges = next(
-        item for item in axis.collections if isinstance(item, Line3DCollection)
-    )
-    edge_colors = np.asarray(edges.get_colors())
-    assert np.min(edges.get_linewidths()) >= 1.4 - 1e-12
-    assert np.ptp(edge_colors[:, 3]) > 0.0
-    assert np.min(edge_colors[:, 3]) >= (0.95 * 0.70) - 1e-12
-    assert np.max(edge_colors[:, 3]) <= 0.95 + 1e-12
+    edges = _network_collection(axis, "pyconnviz-edges")
+    nodes = _network_collection(axis, "pyconnviz-nodes")
+    assert edges.depth_cue is True
+    assert nodes.depth_cue is True
+    assert np.min(edges.diameters) >= 1.4 - 1e-12
+    assert np.min(nodes.diameters) >= 6.0 - 1e-12
+    assert np.max(nodes.diameters) <= 16.0 + 1e-12
+    assert edges.get_alpha() == pytest.approx(0.95)
     plt.close(result.artist)
 
 
@@ -418,21 +427,19 @@ def test_matplotlib_surface_uses_translucent_depth_cued_foreground() -> None:
     surface = next(
         item for item in axis.collections if isinstance(item, Poly3DCollection)
     )
-    edges = next(
-        item for item in axis.collections if isinstance(item, Line3DCollection)
-    )
-    nodes = next(
-        item for item in axis.collections if isinstance(item, Path3DCollection)
-    )
+    edges = _network_collection(axis, "pyconnviz-edges")
+    nodes = _network_collection(axis, "pyconnviz-nodes")
     assert axis.computed_zorder is False
     assert np.allclose(np.asarray(surface.get_facecolors())[:, 3], 0.65)
     assert surface.get_zorder() == 0
     assert edges.get_zorder() > surface.get_zorder()
     assert nodes.get_zorder() > edges.get_zorder()
-    edge_colors = np.asarray(edges.get_colors())
-    assert len(edge_colors) > len(result.panel_edges["left-lateral"])
-    assert np.ptp(edge_colors[:, 3]) > 0.0
-    assert nodes.get_depthshade() is True
+    assert edges.mesh_triangle_count > len(result.panel_edges["left-lateral"])
+    assert nodes.mesh_triangle_count > len(nodes.diameters)
+    assert edges.depth_cue is True
+    assert nodes.depth_cue is True
+    assert not any(isinstance(item, Line3DCollection) for item in axis.collections)
+    assert not any(isinstance(item, Path3DCollection) for item in axis.collections)
     plt.close(result.artist)
 
 
@@ -453,18 +460,15 @@ def test_matplotlib_depth_cue_can_be_disabled_without_changing_edges() -> None:
     )
 
     axis = result.artist.axes[0]
-    edges = next(
-        item for item in axis.collections if isinstance(item, Line3DCollection)
-    )
-    nodes = next(
-        item for item in axis.collections if isinstance(item, Path3DCollection)
-    )
+    edges = _network_collection(axis, "pyconnviz-edges")
+    nodes = _network_collection(axis, "pyconnviz-nodes")
     assert result.panel_edges["left-lateral"] == select_panel_edges(
         network.edges, geometry(), "left"
     )
-    assert len(edges.get_colors()) == len(result.panel_edges["left-lateral"])
-    np.testing.assert_allclose(np.asarray(edges.get_colors())[:, 3], 0.64)
-    assert nodes.get_depthshade() is False
+    assert len(edges.diameters) == len(result.panel_edges["left-lateral"])
+    assert edges.get_alpha() == pytest.approx(0.64)
+    assert edges.depth_cue is False
+    assert nodes.depth_cue is False
     plt.close(result.artist)
 
 
@@ -510,10 +514,12 @@ def test_surface_cmap_is_independent_from_node_cmap(
 
     assert calls[0]["cmap"] == "RdBu_r"
     assert 0.0 < calls[0]["threshold"] < 1e-100
-    node_scatter = next(
-        item for item in result.artist.axes[0].collections if isinstance(item, Path3DCollection)
+    nodes = _network_collection(result.artist.axes[0], "pyconnviz-nodes")
+    values = prepared().node_strength
+    expected = matplotlib.colormaps["viridis"](
+        Normalize(vmin=float(np.min(values)), vmax=float(np.max(values)))(values[:2])
     )
-    assert node_scatter.get_cmap().name == "viridis"
+    np.testing.assert_allclose(nodes.source_colors, expected)
     plt.close(result.artist)
 
 
@@ -578,8 +584,36 @@ def test_static_surface_renders_png_and_svg_with_batched_artists(
     assert show_calls == []
     assert set(result.panel_edges) == {"left-lateral", "right-lateral", "both-dorsal"}
     for axis in result.artist.axes[:3]:
-        assert sum(isinstance(item, Path3DCollection) for item in axis.collections) == 1
-        assert sum(isinstance(item, Line3DCollection) for item in axis.collections) <= 1
+        assert _network_collection(axis, "pyconnviz-nodes") is not None
+        assert _network_collection(axis, "pyconnviz-edges") is not None
+        assert not any(isinstance(item, Path3DCollection) for item in axis.collections)
+        assert not any(isinstance(item, Line3DCollection) for item in axis.collections)
+
+
+def test_directed_matplotlib_surface_uses_physical_direction_cones() -> None:
+    import matplotlib.pyplot as plt
+
+    network = prepare_connectome(
+        np.array(
+            [[0.0, 0.8, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0] * 4, [0.0] * 4]
+        ),
+        geometry=geometry(),
+        directed=True,
+    )
+    result = plot_surface_matplotlib(
+        network,
+        geometry(),
+        views=(ViewSpec("left", "lateral"),),
+        show_arrows=True,
+        colorbar=False,
+        show=False,
+        dpi=60,
+    )
+
+    directions = _network_collection(result.artist.axes[0], "pyconnviz-directions")
+    assert len(directions.diameters) == 1
+    assert directions.mesh_triangle_count == 16
+    plt.close(result.artist)
 
 
 def test_empty_connectome_renders_nodes_without_edge_colorbar(tmp_path: Path) -> None:

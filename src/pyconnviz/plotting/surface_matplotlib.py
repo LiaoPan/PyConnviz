@@ -11,14 +11,17 @@ import numpy as np
 from matplotlib import colormaps
 from matplotlib.cm import ScalarMappable
 from matplotlib.colors import Normalize
-from mpl_toolkits.mplot3d.art3d import Line3DCollection
 
 from ..geometry import node_surface_normals, to_nilearn_polymesh
 from ..models import ConnectomeGeometry, PlotResult, PreparedConnectome, ViewSpec
 from ..styles import get_style
 from ..surface_overlay import build_surface_overlay, overlay_limits
+from ._matplotlib_ball_stick import (
+    cone_collection,
+    sphere_collection,
+    tube_collection,
+)
 from ._surface_common import (
-    depth_cued_line_data,
     edge_color_norm,
     has_visible_surface_values,
     panel_key,
@@ -178,9 +181,13 @@ def plot_surface_matplotlib(
     for axis in axes:
         axis.computed_zorder = False
     node_cmap_name = visual["node_cmap"] if node_cmap is None else node_cmap
-    node_sizes = scale_values(
+    node_diameters = scale_values(
         size_values,
-        tuple(visual["node_size_range"] if node_size_range is None else node_size_range),
+        tuple(
+            visual["fixed_node_diameter_range"]
+            if node_size_range is None
+            else node_size_range
+        ),
     )
     node_normalization = _node_norm(color_values)
     node_colormap = colormaps[node_cmap_name]
@@ -271,7 +278,7 @@ def plot_surface_matplotlib(
         panel_edges[panel_key(panel)] = visible_edges
         curves = []
         colors = []
-        line_widths = []
+        edge_diameters = []
         for edge in visible_edges if display is not None else ():
             assert display is not None
             cross_hemi = geometry.hemispheres[edge.source] != geometry.hemispheres[edge.target]
@@ -289,44 +296,48 @@ def plot_surface_matplotlib(
             )
             curves.append(curve)
             colors.append(edge_colormap(edge_normalization(edge.weight)))
-            line_widths.append(edge_width_by_pair[(edge.source, edge.target)])
+            edge_diameters.append(edge_width_by_pair[(edge.source, edge.target)])
         if curves:
             base_edge_alpha = (
                 visual["fixed_edge_alpha"] if edge_alpha is None else edge_alpha
             )
-            line_paths, line_colors, resolved_line_widths = depth_cued_line_data(
+            collection = tube_collection(
                 curves,
+                np.asarray(edge_diameters, dtype=np.float64),
                 colors,
-                line_widths,
-                reference_points=display.surface_coordinates,
-                projection=axis.get_proj(),
-                minimum=visual["depth_cue_min_alpha"],
                 alpha=base_edge_alpha,
-                enabled=resolved_depth_cue,
+                depth_cue=resolved_depth_cue,
             )
-            collection = Line3DCollection(
-                line_paths,
-                colors=line_colors,
-                linewidths=resolved_line_widths,
-            )
-            collection.set_zorder(10)
+            assert collection is not None
             axis.add_collection3d(collection)
             if show_arrows and prepared.directed:
-                color_offset = 0
-                for curve in curves:
-                    color_count = len(curve) - 1 if resolved_depth_cue else 1
-                    color = line_colors[color_offset + color_count - 1]
-                    color_offset += color_count
-                    direction = curve[-1] - curve[-2]
-                    arrow = axis.quiver(
-                        *curve[-2],
-                        *direction,
-                        color=color,
-                        arrow_length_ratio=0.5,
-                        linewidth=0.8,
-                        normalize=False,
-                    )
-                    arrow.set_zorder(11)
+                tips = []
+                bases = []
+                cone_diameters = []
+                for edge, curve, diameter in zip(
+                    visible_edges,
+                    curves,
+                    edge_diameters,
+                    strict=True,
+                ):
+                    tangent = curve[-1] - curve[-2]
+                    tangent /= np.linalg.norm(tangent)
+                    tip = curve[-1] - tangent * (node_diameters[edge.target] / 2.0)
+                    cone_diameter = max(2.0, diameter * 1.8)
+                    length = max(3.0, cone_diameter * 1.8)
+                    tips.append(tip)
+                    bases.append(tip - tangent * length)
+                    cone_diameters.append(cone_diameter)
+                arrows = cone_collection(
+                    np.asarray(bases),
+                    np.asarray(tips),
+                    np.asarray(cone_diameters),
+                    colors,
+                    alpha=base_edge_alpha,
+                    depth_cue=resolved_depth_cue,
+                )
+                if arrows is not None:
+                    axis.add_collection3d(arrows)
         node_indices = [
             index
             for index, hemi in enumerate(geometry.hemispheres)
@@ -334,19 +345,15 @@ def plot_surface_matplotlib(
         ]
         if display is not None and node_indices:
             points = display.node_positions[node_indices]
-            node_scatter = axis.scatter(
-                points[:, 0],
-                points[:, 1],
-                points[:, 2],
-                s=node_sizes[node_indices],
-                c=color_values[node_indices],
-                cmap=node_colormap,
-                norm=node_normalization,
-                edgecolors=visual["node_edgecolor"],
-                linewidths=0.6,
-                depthshade=resolved_depth_cue,
+            node_colors = node_colormap(node_normalization(color_values[node_indices]))
+            nodes = sphere_collection(
+                points,
+                node_diameters[node_indices],
+                node_colors,
+                depth_cue=resolved_depth_cue,
             )
-            node_scatter.set_zorder(12)
+            assert nodes is not None
+            axis.add_collection3d(nodes)
         if panel.title:
             axis.set_title(panel.title, color="white" if style == "dark" else "black")
         axis.set_axis_off()

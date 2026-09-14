@@ -34,6 +34,10 @@ def test_spheres_are_one_auditable_shaded_poly_collection() -> None:
     assert collection.mesh_triangle_count == 2 * (2 * 12 * 7)
     assert collection.depth_cue is True
     assert collection.get_zorder() == 12
+    np.testing.assert_allclose(
+        collection.source_colors,
+        ((0.2, 0.4, 0.6, 1.0), (0.8, 0.3, 0.1, 1.0)),
+    )
 
 
 def test_tubes_are_one_physical_collection_with_explicit_alpha() -> None:
