@@ -12,6 +12,7 @@ from PIL import Image
 from pyconnviz.connectivity import prepare_connectome
 from pyconnviz.geometry import geometry_from_arrays
 from pyconnviz.models import GeometryError, HemisphereMesh
+from pyconnviz.plotting._matplotlib_ball_stick import BallStickCollection
 from pyconnviz.plotting.surface_nilearn import (
     freesurfer_surface_paths,
     plot_surface_nilearn,
@@ -19,6 +20,14 @@ from pyconnviz.plotting.surface_nilearn import (
 )
 
 matplotlib.use("Agg", force=True)
+
+
+def _network_collection(axis, gid: str) -> BallStickCollection:
+    return next(
+        item
+        for item in axis.collections
+        if isinstance(item, BallStickCollection) and item.get_gid() == gid
+    )
 
 
 def _tetra_mesh(center_x: float) -> HemisphereMesh:
@@ -298,24 +307,21 @@ def test_native_renderer_aligns_nodes_and_scopes_edges_per_hemisphere(
         assert {
             (edge.source, edge.target) for edge in result.panel_edges[key]
         } == expected_pairs[hemi]
-        edge_artist = next(
-            item for item in axis.collections if isinstance(item, Line3DCollection)
-        )
-        node_artist = next(
-            item for item in axis.collections if isinstance(item, Path3DCollection)
-        )
-        points = np.column_stack(node_artist._offsets3d)
-        np.testing.assert_allclose(points, expected_points)
+        edge_artist = _network_collection(axis, "pyconnviz-edges")
+        node_artist = _network_collection(axis, "pyconnviz-nodes")
+        np.testing.assert_allclose(node_artist.part_centers, expected_points, atol=1e-12)
         assert axis.computed_zorder is False
         assert edge_artist.get_zorder() == 10
         assert node_artist.get_zorder() == 12
-        edge_colors = np.asarray(edge_artist.get_colors())
-        assert len(edge_colors) > len(result.panel_edges[key])
-        assert np.ptp(edge_colors[:, 3]) > 0.0
-        assert np.min(edge_artist.get_linewidths()) >= 1.4 - 1e-12
-        assert np.min(edge_colors[:, 3]) >= (0.95 * 0.70) - 1e-12
-        assert np.max(edge_colors[:, 3]) <= 0.95 + 1e-12
-        assert node_artist.get_depthshade() is True
+        assert len(edge_artist.diameters) == len(result.panel_edges[key])
+        assert np.min(edge_artist.diameters) >= 1.4 - 1e-12
+        assert np.min(node_artist.diameters) >= 6.0 - 1e-12
+        assert np.max(node_artist.diameters) <= 16.0 + 1e-12
+        assert edge_artist.get_alpha() == pytest.approx(0.95)
+        assert edge_artist.depth_cue is True
+        assert node_artist.depth_cue is True
+        assert not any(isinstance(item, Line3DCollection) for item in axis.collections)
+        assert not any(isinstance(item, Path3DCollection) for item in axis.collections)
     plt.close(result.artist)
 
 
@@ -347,16 +353,51 @@ def test_native_depth_cue_can_be_disabled_without_changing_edges(
         ("left-lateral", "right-lateral"),
         strict=True,
     ):
-        edge_artist = next(
-            item for item in axis.collections if isinstance(item, Line3DCollection)
-        )
-        node_artist = next(
-            item for item in axis.collections if isinstance(item, Path3DCollection)
-        )
-        assert len(edge_artist.get_colors()) == len(result.panel_edges[key])
-        np.testing.assert_allclose(np.asarray(edge_artist.get_colors())[:, 3], 0.64)
-        assert node_artist.get_depthshade() is False
+        edge_artist = _network_collection(axis, "pyconnviz-edges")
+        node_artist = _network_collection(axis, "pyconnviz-nodes")
+        assert len(edge_artist.diameters) == len(result.panel_edges[key])
+        assert edge_artist.get_alpha() == pytest.approx(0.64)
+        assert edge_artist.depth_cue is False
+        assert node_artist.depth_cue is False
     assert result.prepared is network
+    plt.close(result.artist)
+
+
+def test_directed_native_surface_uses_physical_direction_cones(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import matplotlib.pyplot as plt
+    import nilearn.plotting as nilearn_plotting
+
+    monkeypatch.setattr(
+        nilearn_plotting,
+        "plot_img_on_surf",
+        lambda **_: _fake_native_axes(1, 2),
+    )
+    network = prepare_connectome(
+        np.array(
+            [[0.0, 0.8, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0] * 4, [0.0] * 4]
+        ),
+        geometry=_geometry(),
+        directed=True,
+    )
+    result = plot_surface_nilearn(
+        network,
+        _geometry(),
+        views="lateral",
+        show_arrows=True,
+        colorbar=False,
+        show=False,
+        dpi=72,
+    )
+
+    directions = _network_collection(result.artist.axes[0], "pyconnviz-directions")
+    assert len(directions.diameters) == 1
+    assert directions.mesh_triangle_count == 16
+    assert not any(
+        item.get_gid() == "pyconnviz-directions"
+        for item in result.artist.axes[1].collections
+    )
     plt.close(result.artist)
 
 

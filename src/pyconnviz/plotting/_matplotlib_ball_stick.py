@@ -32,6 +32,7 @@ class BallStickCollection(Poly3DCollection):
     mesh_triangle_count: int
     depth_cue: bool
     source_colors: NDArray[np.float64]
+    part_centers: NDArray[np.float64]
 
     def __init__(
         self,
@@ -72,6 +73,10 @@ class BallStickCollection(Poly3DCollection):
         self.mesh_triangle_count = len(merged.faces)
         self.depth_cue = bool(depth_cue)
         self.source_colors = np.array(resolved_colors, copy=True)
+        self.part_centers = np.asarray(
+            [np.mean(part.vertices, axis=0) for part in parts],
+            dtype=np.float64,
+        )
 
 
 def sphere_collection(
